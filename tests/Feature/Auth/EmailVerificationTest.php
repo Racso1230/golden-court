@@ -23,7 +23,7 @@ class EmailVerificationTest extends TestCase
         $this->skipUnlessFortifyHas(Features::emailVerification());
     }
 
-    public function test_email_verification_screen_can_be_rendered()
+    public function test_email_verification_screen_can_be_rendered(): void
     {
         $user = User::factory()->unverified()->create();
 
@@ -32,7 +32,7 @@ class EmailVerificationTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_email_can_be_verified()
+    public function test_email_can_be_verified(): void
     {
         $user = User::factory()->unverified()->create();
 
@@ -48,11 +48,11 @@ class EmailVerificationTest extends TestCase
 
         Event::assertDispatched(Verified::class);
 
-        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $this->assertTrue($user->refresh()->hasVerifiedEmail());
         $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
     }
 
-    public function test_email_is_not_verified_with_invalid_hash()
+    public function test_email_is_not_verified_with_invalid_hash(): void
     {
         $user = User::factory()->unverified()->create();
 
@@ -67,7 +67,7 @@ class EmailVerificationTest extends TestCase
         $this->actingAs($user)->get($verificationUrl);
 
         Event::assertNotDispatched(Verified::class);
-        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        $this->assertFalse($user->refresh()->hasVerifiedEmail());
     }
 
     public function test_email_is_not_verified_with_invalid_user_id(): void
@@ -85,7 +85,7 @@ class EmailVerificationTest extends TestCase
         $this->actingAs($user)->get($verificationUrl);
 
         Event::assertNotDispatched(Verified::class);
-        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        $this->assertFalse($user->refresh()->hasVerifiedEmail());
     }
 
     public function test_verified_user_is_redirected_to_dashboard_from_verification_prompt(): void
@@ -116,6 +116,6 @@ class EmailVerificationTest extends TestCase
             ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 
         Event::assertNotDispatched(Verified::class);
-        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $this->assertTrue($user->refresh()->hasVerifiedEmail());
     }
 }
