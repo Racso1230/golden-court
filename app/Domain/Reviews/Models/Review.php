@@ -19,10 +19,12 @@ use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Config;
 
 /**
  * @property int $id
@@ -56,7 +58,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Review extends Model
 {
     /** @use HasFactory<ReviewFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, Prunable, SoftDeletes;
+
+    /**
+     * Soft-deleted reviews are kept for a retention window, then removed for
+     * good by the daily `model:prune` run.
+     *
+     * @return Builder<Review>
+     */
+    public function prunable(): Builder
+    {
+        return static::onlyTrashed()
+            ->where('deleted_at', '<', now()->subDays(Config::integer('golden_court.retention.deleted_reviews_days')));
+    }
 
     /**
      * @return array<string, string>

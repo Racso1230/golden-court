@@ -11,9 +11,12 @@ use Carbon\CarbonImmutable;
 use Database\Factories\ReviewFlagFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 
 /**
  * A user reporting a review for moderation.
@@ -35,7 +38,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ReviewFlag extends Model
 {
     /** @use HasFactory<ReviewFlagFactory> */
-    use HasFactory;
+    use HasFactory, Prunable;
+
+    /**
+     * Resolved flags have served their purpose; the daily `model:prune` run
+     * removes them after the retention window.
+     *
+     * @return Builder<ReviewFlag>
+     */
+    public function prunable(): Builder
+    {
+        return ReviewFlag::query()
+            ->whereNotNull('resolved_at')
+            ->where('resolved_at', '<', now()->subDays(Config::integer('golden_court.retention.resolved_flags_days')));
+    }
 
     /**
      * @return array<string, string>
