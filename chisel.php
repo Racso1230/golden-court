@@ -141,7 +141,7 @@ return Chisel::script(__DIR__)
             )->removeSectionMarkers('email-verification');
         },
         else: function (Chisel $c) use ($paths) {
-            $c->php('app/Models/User.php')
+            $c->php('app/Domain/Users/Models/User.php')
                 ->removeImport('Illuminate\Contracts\Auth\MustVerifyEmail')
                 ->removeInterface('MustVerifyEmail');
 
@@ -164,7 +164,7 @@ return Chisel::script(__DIR__)
         '2fa',
         then: function (Chisel $c) use ($paths) {
             $c->files(
-                'app/Models/User.php',
+                'app/Domain/Users/Models/User.php',
                 'database/factories/UserFactory.php',
                 $paths['security'],
                 $paths['auth_types'],
@@ -174,12 +174,12 @@ return Chisel::script(__DIR__)
             )->removeSectionMarkers('2fa');
         },
         else: function (Chisel $c) use ($paths) {
-            $c->php('app/Models/User.php')
+            $c->php('app/Domain/Users/Models/User.php')
                 ->removeImport('Laravel\Fortify\TwoFactorAuthenticatable')
                 ->removeTrait('TwoFactorAuthenticatable');
 
             $c->files(
-                'app/Models/User.php',
+                'app/Domain/Users/Models/User.php',
                 'database/factories/UserFactory.php',
                 'config/fortify.php',
                 'app/Providers/FortifyServiceProvider.php',
@@ -218,7 +218,7 @@ return Chisel::script(__DIR__)
             )->removeSectionMarkers('passkeys');
         },
         else: function (Chisel $c) use ($paths) {
-            $c->php('app/Models/User.php')
+            $c->php('app/Domain/Users/Models/User.php')
                 ->removeImport('Laravel\Fortify\PasskeyAuthenticatable')
                 ->removeImport('Laravel\Fortify\Contracts\PasskeyUser')
                 ->removeTrait('PasskeyAuthenticatable')
