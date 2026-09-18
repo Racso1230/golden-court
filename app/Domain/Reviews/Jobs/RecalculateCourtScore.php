@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Reviews\Jobs;
 
 use App\Domain\Courts\Models\Court;
+use App\Domain\Courts\Queries\GoldenCourtQuery;
 use App\Domain\Reviews\Contracts\RatingAggregator;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\ValueObjects\CourtScores;
+use App\Domain\Venues\Models\Venue;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -49,6 +51,13 @@ final class RecalculateCourtScore implements ShouldBeUnique, ShouldQueue
             'aggregate_score' => $aggregate->value,
             'review_count' => $aggregate->reviewCount,
         ]);
+
+        // The city's Golden Court may have changed hands.
+        $city = Venue::query()->whereKey($court->venue_id)->value('city');
+
+        if (is_string($city)) {
+            GoldenCourtQuery::forget($city);
+        }
 
         RecalculateVenueScore::dispatch($court->venue_id);
     }

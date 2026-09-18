@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use App\Domain\Courts\Models\Court;
+use App\Domain\Courts\Queries\GoldenCourtQuery;
 use App\Domain\Reviews\Contracts\RatingAggregator;
 use App\Domain\Reviews\Jobs\RecalculateCourtScore;
 use App\Domain\Reviews\Jobs\RecalculateVenueScore;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\ValueObjects\AggregateScore;
 use App\Domain\Reviews\ValueObjects\CourtScores;
+use App\Domain\Venues\Models\Venue;
 use Illuminate\Support\Facades\Bus;
 
 it('writes the simple average of published reviews to the court', function (): void {
@@ -109,4 +111,18 @@ it('is unique per court so a burst of changes queues one recalculation', functio
 
     expect($job->uniqueId())->toBe('42')
         ->and($job->tries)->toBe(3);
+});
+
+it('busts the Golden Court cache for the venue city', function (): void {
+    Bus::fake([RecalculateVenueScore::class]);
+    $venue = Venue::factory()->create(['city' => 'Manchester']);
+    $court = Court::factory()->for($venue)->create();
+    Review::factory()->count(5)->for($court)->create(['glass_rating' => 5, 'lighting_rating' => 5, 'turf_rating' => 5, 'facilities_rating' => 5]);
+    $goldenCourts = new GoldenCourtQuery;
+
+    expect($goldenCourts->forCity('Manchester'))->toBeNull();
+
+    RecalculateCourtScore::dispatchSync($court->id);
+
+    expect($goldenCourts->forCity('Manchester')?->is($court))->toBeTrue();
 });
