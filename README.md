@@ -50,6 +50,12 @@ There is no booking, pricing or availability functionality, and none is planned.
    npm run dev
    ```
 
+7. Run a queue worker. Court and venue scores are recalculated by queued jobs on the `database` connection, so without a worker they will not update after a review is submitted:
+
+   ```sh
+   php artisan queue:work
+   ```
+
 ## Running checks
 
 Both scripts must pass before a change is considered done.
