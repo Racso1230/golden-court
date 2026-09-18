@@ -9,7 +9,9 @@ use App\Domain\Courts\Enums\Surface;
 use App\Domain\Courts\Enums\WallType;
 use App\Domain\Courts\Models\Court;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+#[TypeScript]
 final class CourtSummaryData extends Data
 {
     public function __construct(

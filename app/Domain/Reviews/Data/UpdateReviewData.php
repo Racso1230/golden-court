@@ -7,10 +7,12 @@ namespace App\Domain\Reviews\Data;
 use App\Domain\Reviews\ValueObjects\CourtScores;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * The editable parts of an existing review. The court cannot change.
  */
+#[TypeScript]
 final class UpdateReviewData extends Data
 {
     public function __construct(

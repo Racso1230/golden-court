@@ -8,10 +8,12 @@ use App\Domain\Reviews\Models\Review;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A review teaser for the home page, with enough context to link to its court.
  */
+#[TypeScript]
 final class RecentReviewData extends Data
 {
     public function __construct(

@@ -72,5 +72,10 @@ jobs:
       - name: PHP checks (Pint, PHPStan, Pest)
         run: composer check
 
-      - name: Frontend checks (lint, format, build, vue-tsc)
+      - name: Generated TypeScript types are up to date
+        run: |
+          php artisan typescript:transform
+          git diff --exit-code -- resources/js/types/generated.d.ts
+
+      - name: Frontend checks (lint, format, build, types, vue-tsc, vitest)
         run: npm run check

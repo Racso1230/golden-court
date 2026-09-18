@@ -8,11 +8,13 @@ use App\Domain\Moderation\Models\ReviewFlag;
 use App\Domain\Reviews\Data\ReviewData;
 use App\Domain\Reviews\Models\Review;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A review as the moderation queue sees it: the public read model plus where
  * it lives and who has flagged it.
  */
+#[TypeScript]
 final class ModerationReviewData extends Data
 {
     /**

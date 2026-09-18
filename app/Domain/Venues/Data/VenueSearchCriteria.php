@@ -10,11 +10,13 @@ use App\Domain\Courts\Enums\WallType;
 use App\Domain\Venues\Enums\VenueSort;
 use App\Domain\Venues\ValueObjects\Coordinates;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * Everything a venue search can be narrowed and ordered by. Knows nothing
  * about HTTP; the request class builds it.
  */
+#[TypeScript]
 final class VenueSearchCriteria extends Data
 {
     public const int DEFAULT_RADIUS_KM = 25;

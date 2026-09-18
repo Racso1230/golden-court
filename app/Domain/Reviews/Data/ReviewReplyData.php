@@ -7,10 +7,12 @@ namespace App\Domain\Reviews\Data;
 use App\Domain\Reviews\Models\ReviewReply;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * Read model for a venue owner's reply as shown under a review.
  */
+#[TypeScript]
 final class ReviewReplyData extends Data
 {
     public function __construct(

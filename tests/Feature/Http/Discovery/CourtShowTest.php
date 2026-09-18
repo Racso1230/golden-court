@@ -25,8 +25,8 @@ it('renders a court with averages and paginated reviews', function (): void {
             ->where('court.court.name', 'Court 3')
             ->where('court.venueSlug', $court->venue->slug)
             ->where('court.averages.glass', 4.5)
-            ->has('court.reviews.data', 10)
-            ->where('court.reviews.meta.total', 12)
+            ->has('reviews.data', 10)
+            ->where('reviews.total', 12)
             ->where('sort', 'recent')
             ->has('sortOptions', 4)
             ->where('canReview', false));
@@ -40,12 +40,12 @@ it('sorts reviews as requested and keeps the sort in pagination links', function
     get(route('courts.show', [$court->venue, $court, 'sort' => 'highest']))
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('sort', 'highest')
-            ->where('court.reviews.data.0.id', $high->id)
-            ->where('court.reviews.data.1.id', $low->id));
+            ->where('reviews.data.0.id', $high->id)
+            ->where('reviews.data.1.id', $low->id));
 
     get(route('courts.show', [$court->venue, $court, 'sort' => 'lowest']))
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('court.reviews.data.0.id', $low->id));
+            ->where('reviews.data.0.id', $low->id));
 });
 
 it('tells a logged-in player whether they can review and whether they voted', function (): void {
@@ -58,13 +58,13 @@ it('tells a logged-in player whether they can review and whether they voted', fu
         ->get(route('courts.show', [$court->venue, $court]))
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('canReview', true)
-            ->where('court.reviews.data.0.hasVoted', true));
+            ->where('reviews.data.0.hasVoted', true));
 
     actingAs($review->user)
         ->get(route('courts.show', [$court->venue, $court]))
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('canReview', false)
-            ->where('court.reviews.data.0.hasVoted', false));
+            ->where('reviews.data.0.hasVoted', false));
 });
 
 it('404s when the court belongs to a different venue', function (): void {

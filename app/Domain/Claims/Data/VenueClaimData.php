@@ -8,10 +8,12 @@ use App\Domain\Claims\Enums\ClaimStatus;
 use App\Domain\Claims\Models\VenueClaim;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A claim as shown to admins.
  */
+#[TypeScript]
 final class VenueClaimData extends Data
 {
     public function __construct(

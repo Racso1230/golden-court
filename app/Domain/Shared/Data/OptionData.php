@@ -7,10 +7,12 @@ namespace App\Domain\Shared\Data;
 use App\Domain\Shared\Contracts\HasLabel;
 use BackedEnum;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A value/label pair for a select control.
  */
+#[TypeScript]
 final class OptionData extends Data
 {
     public function __construct(

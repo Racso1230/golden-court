@@ -27,7 +27,7 @@ it('hides a review after three flags and lets an admin settle it', function (): 
 
     // Hidden from the public court page and queued for a score recalculation.
     get(route('courts.show', [$review->court->venue, $review->court]))
-        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('court.reviews.meta.total', 0));
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('reviews.total', 0));
     Queue::assertPushed(RecalculateCourtScore::class, fn (RecalculateCourtScore $job): bool => $job->courtId === $review->court_id);
 
     // It shows up in the admin queue, and publishing resolves every flag.

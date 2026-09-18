@@ -6,10 +6,12 @@ namespace App\Domain\Venues\Data;
 
 use App\Domain\Venues\Models\Venue;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A venue as it appears in search results and lists.
  */
+#[TypeScript]
 final class VenueSummaryData extends Data
 {
     public function __construct(

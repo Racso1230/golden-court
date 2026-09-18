@@ -8,10 +8,12 @@ use App\Domain\Courts\Data\CourtSummaryData;
 use App\Domain\Courts\Models\Court;
 use App\Domain\Venues\Models\Venue;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A venue page: the summary plus address, contact details and its courts.
  */
+#[TypeScript]
 final class VenueDetailData extends Data
 {
     /**

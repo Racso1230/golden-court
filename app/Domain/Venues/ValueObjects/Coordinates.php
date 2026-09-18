@@ -6,10 +6,12 @@ namespace App\Domain\Venues\ValueObjects;
 
 use App\Domain\Venues\Exceptions\InvalidCoordinatesException;
 use JsonSerializable;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A WGS84 point on the Earth's surface.
  */
+#[TypeScript]
 final readonly class Coordinates implements JsonSerializable
 {
     public const float MIN_LATITUDE = -90.0;

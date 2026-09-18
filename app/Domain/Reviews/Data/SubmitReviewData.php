@@ -7,10 +7,12 @@ namespace App\Domain\Reviews\Data;
 use App\Domain\Reviews\ValueObjects\CourtScores;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * Everything a player provides when reviewing a court.
  */
+#[TypeScript]
 final class SubmitReviewData extends Data
 {
     public function __construct(

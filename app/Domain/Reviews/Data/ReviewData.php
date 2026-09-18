@@ -10,10 +10,12 @@ use App\Domain\Reviews\Models\ReviewVote;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * Read model for a review as sent to the frontend.
  */
+#[TypeScript]
 final class ReviewData extends Data
 {
     /**

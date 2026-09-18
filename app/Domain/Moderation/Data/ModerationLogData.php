@@ -8,11 +8,13 @@ use App\Domain\Moderation\Enums\ModerationAction;
 use App\Domain\Moderation\Models\ModerationLog;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+#[TypeScript]
 final class ModerationLogData extends Data
 {
     /**
-     * @param  array<string, mixed>  $details
+     * @param  array<string, string|int|float|bool|null>  $details
      */
     public function __construct(
         public int $id,
