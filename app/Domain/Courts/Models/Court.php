@@ -34,6 +34,7 @@ use Illuminate\Support\Str;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property CarbonImmutable|null $deleted_at
+ * @property-read Venue $venue
  */
 #[Fillable(['venue_id', 'name', 'slug', 'court_type', 'wall_type', 'surface'])]
 #[UseFactory(CourtFactory::class)]
