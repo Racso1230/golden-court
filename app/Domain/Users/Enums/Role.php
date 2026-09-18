@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Enums;
 
-enum Role: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum Role: string implements HasLabel
 {
     case Player = 'player';
     case VenueOwner = 'venue_owner';

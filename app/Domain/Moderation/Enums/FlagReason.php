@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Moderation\Enums;
 
-enum FlagReason: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum FlagReason: string implements HasLabel
 {
     case Spam = 'spam';
     case Offensive = 'offensive';

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Reviews\Enums;
 
-enum ReviewStatus: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum ReviewStatus: string implements HasLabel
 {
     case Pending = 'pending';
     case Published = 'published';

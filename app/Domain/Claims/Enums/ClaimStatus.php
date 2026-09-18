@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Claims\Enums;
 
-enum ClaimStatus: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum ClaimStatus: string implements HasLabel
 {
     case Pending = 'pending';
     case Approved = 'approved';

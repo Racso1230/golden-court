@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Courts\Enums;
 
-enum Surface: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum Surface: string implements HasLabel
 {
     case ArtificialGrass = 'artificial_grass';
     case Carpet = 'carpet';

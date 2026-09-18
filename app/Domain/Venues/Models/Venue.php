@@ -41,6 +41,7 @@ use Illuminate\Support\Str;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property CarbonImmutable|null $deleted_at
+ * @property-read int|null $courts_count Present when queried with withCount('courts').
  */
 #[Fillable([
     'name',
@@ -108,6 +109,18 @@ class Venue extends Model
     public function isClaimed(): bool
     {
         return $this->claimed_by_user_id !== null;
+    }
+
+    /**
+     * Distance from the search point, in kilometres. Only present when the
+     * venue was loaded by a geographic search that selected `distance_km`;
+     * strict mode would throw on a plain property read, so check first.
+     */
+    public function distanceKm(): ?float
+    {
+        $raw = $this->getAttributes()['distance_km'] ?? null;
+
+        return is_numeric($raw) ? (float) $raw : null;
     }
 
     private static function uniqueSlugFor(string $name): string

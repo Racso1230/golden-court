@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Courts\Enums;
 
-enum CourtType: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum CourtType: string implements HasLabel
 {
     case Indoor = 'indoor';
     case Outdoor = 'outdoor';

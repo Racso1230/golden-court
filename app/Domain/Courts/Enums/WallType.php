@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Courts\Enums;
 
-enum WallType: string
+use App\Domain\Shared\Contracts\HasLabel;
+
+enum WallType: string implements HasLabel
 {
     case Panoramic = 'panoramic';
     case Classic = 'classic';
