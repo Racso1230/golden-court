@@ -1,6 +1,8 @@
 export type User = {
     id: number;
     name: string;
+    display_name: string;
+    role: 'player' | 'venue_owner' | 'admin';
     email: string;
     avatar?: string;
     email_verified_at: string | null;

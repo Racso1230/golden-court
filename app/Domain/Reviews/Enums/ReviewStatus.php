@@ -33,6 +33,7 @@ enum ReviewStatus: string implements HasLabel
 
     /**
      * The moderation state machine: which statuses this one may move to.
+     * A live review can be flagged by players or removed outright by an admin.
      *
      * @return list<self>
      */
@@ -40,7 +41,7 @@ enum ReviewStatus: string implements HasLabel
     {
         return match ($this) {
             self::Pending => [self::Published, self::Removed],
-            self::Published => [self::Flagged],
+            self::Published => [self::Flagged, self::Removed],
             self::Flagged => [self::Published, self::Removed],
             self::Removed => [],
         };

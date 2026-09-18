@@ -24,6 +24,7 @@ it('allows the moderation transitions', function (ReviewStatus $from, ReviewStat
     'pending to published' => [ReviewStatus::Pending, ReviewStatus::Published],
     'pending to removed' => [ReviewStatus::Pending, ReviewStatus::Removed],
     'published to flagged' => [ReviewStatus::Published, ReviewStatus::Flagged],
+    'published to removed (admin takedown)' => [ReviewStatus::Published, ReviewStatus::Removed],
     'flagged to published' => [ReviewStatus::Flagged, ReviewStatus::Published],
     'flagged to removed' => [ReviewStatus::Flagged, ReviewStatus::Removed],
 ]);
@@ -34,9 +35,9 @@ it('forbids every other transition', function (ReviewStatus $from, ReviewStatus 
     'pending to flagged' => [ReviewStatus::Pending, ReviewStatus::Flagged],
     'pending to pending' => [ReviewStatus::Pending, ReviewStatus::Pending],
     'published to pending' => [ReviewStatus::Published, ReviewStatus::Pending],
-    'published to removed' => [ReviewStatus::Published, ReviewStatus::Removed],
     'published to published' => [ReviewStatus::Published, ReviewStatus::Published],
     'flagged to pending' => [ReviewStatus::Flagged, ReviewStatus::Pending],
+    'flagged to flagged' => [ReviewStatus::Flagged, ReviewStatus::Flagged],
     'removed to published' => [ReviewStatus::Removed, ReviewStatus::Published],
     'removed to pending' => [ReviewStatus::Removed, ReviewStatus::Pending],
 ]);

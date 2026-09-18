@@ -27,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $resolved_by_user_id
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
+ * @property-read Review $review
+ * @property-read User $user
  */
 #[Fillable(['review_id', 'user_id', 'reason', 'details'])]
 #[UseFactory(ReviewFlagFactory::class)]
