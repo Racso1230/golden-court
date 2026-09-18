@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Domain\Moderation\Enums\ModerationAction;
+use App\Domain\Moderation\Enums\ModerationSubject;
+use App\Domain\Moderation\Models\ModerationLog;
 use App\Domain\Moderation\SystemActor;
 use App\Domain\Reviews\Actions\ChangeReviewStatusAction;
 use App\Domain\Reviews\Enums\ReviewStatus;
@@ -60,4 +63,30 @@ it('lets the system actor moderate, for automatic escalation', function (): void
     app(ChangeReviewStatusAction::class)->handle($review, ReviewStatus::Flagged, new SystemActor);
 
     expect($review->refresh()->status)->toBe(ReviewStatus::Flagged);
+});
+
+it('records the change in the moderation log', function (): void {
+    Event::fake([ReviewStatusChanged::class]);
+    $admin = User::factory()->admin()->create();
+    $review = Review::factory()->pending()->create();
+
+    app(ChangeReviewStatusAction::class)->handle($review, ReviewStatus::Published, $admin);
+
+    $log = ModerationLog::query()->sole();
+
+    expect($log->action)->toBe(ModerationAction::ReviewStatusChanged)
+        ->and($log->subject_type)->toBe(ModerationSubject::Review)
+        ->and($log->subject_id)->toBe($review->id)
+        ->and($log->actor_user_id)->toBe($admin->id)
+        // jsonb does not preserve key order.
+        ->and($log->details)->toEqualCanonicalizing(['from' => 'pending', 'to' => 'published']);
+});
+
+it('writes no log line when the transition is refused', function (): void {
+    $review = Review::factory()->removed()->create();
+
+    expect(fn () => app(ChangeReviewStatusAction::class)->handle($review, ReviewStatus::Published, User::factory()->admin()->create()))
+        ->toThrow(InvalidStatusTransitionException::class);
+
+    expect(ModerationLog::query()->count())->toBe(0);
 });

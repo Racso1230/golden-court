@@ -10,6 +10,9 @@ use App\Domain\Claims\Events\VenueClaimRejected;
 use App\Domain\Claims\Exceptions\InvalidClaimTransitionException;
 use App\Domain\Claims\Exceptions\VenueAlreadyClaimedException;
 use App\Domain\Claims\Models\VenueClaim;
+use App\Domain\Moderation\Actions\RecordModerationLogAction;
+use App\Domain\Moderation\Enums\ModerationAction;
+use App\Domain\Moderation\Enums\ModerationSubject;
 use App\Domain\Reviews\Exceptions\ModerationNotPermittedException;
 use App\Domain\Users\Enums\Role;
 use App\Domain\Users\Models\User;
@@ -21,6 +24,8 @@ use Illuminate\Support\Facades\DB;
  */
 final class ReviewVenueClaimAction
 {
+    public function __construct(private readonly RecordModerationLogAction $recordLog) {}
+
     /**
      * @throws ModerationNotPermittedException when the actor is not an admin
      * @throws InvalidClaimTransitionException when the claim is not pending or the decision is not a decision
@@ -57,6 +62,18 @@ final class ReviewVenueClaimAction
                 'reviewed_at' => now(),
                 'rejection_reason' => $decision === ClaimStatus::Rejected ? $rejectionReason : null,
             ])->save();
+
+            $this->recordLog->handle(
+                $admin,
+                $decision === ClaimStatus::Approved ? ModerationAction::ClaimApproved : ModerationAction::ClaimRejected,
+                ModerationSubject::Claim,
+                $claim->id,
+                array_filter([
+                    'venue_id' => $claim->venue_id,
+                    'claimant_user_id' => $claim->user_id,
+                    'rejection_reason' => $rejectionReason,
+                ], static fn (mixed $value): bool => $value !== null),
+            );
 
             DB::afterCommit(fn () => $decision === ClaimStatus::Approved
                 ? VenueClaimApproved::dispatch($claim->id, $claim->venue_id, $claim->user_id)

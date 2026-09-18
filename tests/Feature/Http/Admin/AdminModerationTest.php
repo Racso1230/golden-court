@@ -106,3 +106,18 @@ it('shows the moderation detail of a review', function (): void {
             ->where('review.flags.0.details', 'Copy-pasted from another site.')
             ->where('review.venueSlug', $review->court->venue->slug));
 });
+
+it('shows the moderation history on the review detail', function (): void {
+    $admin = User::factory()->admin()->create();
+    $review = Review::factory()->pending()->create();
+
+    actingAs($admin)->post(route('admin.reviews.status', $review), ['outcome' => 'published']);
+
+    actingAs($admin)
+        ->get(route('admin.reviews.show', $review))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->has('log', 1)
+            ->where('log.0.actionLabel', 'Review status changed')
+            ->where('log.0.actorDisplayName', $admin->display_name)
+            ->where('log.0.details.to', 'published'));
+});

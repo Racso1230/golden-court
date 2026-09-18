@@ -9,6 +9,8 @@ use App\Domain\Claims\Events\VenueClaimRejected;
 use App\Domain\Claims\Exceptions\InvalidClaimTransitionException;
 use App\Domain\Claims\Exceptions\VenueAlreadyClaimedException;
 use App\Domain\Claims\Models\VenueClaim;
+use App\Domain\Moderation\Enums\ModerationAction;
+use App\Domain\Moderation\Models\ModerationLog;
 use App\Domain\Reviews\Exceptions\ModerationNotPermittedException;
 use App\Domain\Users\Enums\Role;
 use App\Domain\Users\Models\User;
@@ -92,4 +94,22 @@ it('refuses to approve when the venue gained an owner in the meantime', function
         ->toThrow(VenueAlreadyClaimedException::class);
 
     expect($claim->refresh()->status)->toBe(ClaimStatus::Pending);
+});
+
+it('records approvals and rejections in the moderation log', function (): void {
+    Event::fake([VenueClaimApproved::class, VenueClaimRejected::class]);
+    $admin = User::factory()->admin()->create();
+    $approved = VenueClaim::factory()->create();
+    $rejected = VenueClaim::factory()->create();
+
+    app(ReviewVenueClaimAction::class)->handle($approved, $admin, ClaimStatus::Approved);
+    app(ReviewVenueClaimAction::class)->handle($rejected, $admin, ClaimStatus::Rejected, 'No evidence.');
+
+    $logs = ModerationLog::query()->orderBy('id')->get();
+
+    expect($logs)->toHaveCount(2)
+        ->and($logs[0]?->action)->toBe(ModerationAction::ClaimApproved)
+        ->and($logs[0]?->subject_id)->toBe($approved->id)
+        ->and($logs[1]?->action)->toBe(ModerationAction::ClaimRejected)
+        ->and($logs[1]?->details)->toMatchArray(['rejection_reason' => 'No evidence.']);
 });

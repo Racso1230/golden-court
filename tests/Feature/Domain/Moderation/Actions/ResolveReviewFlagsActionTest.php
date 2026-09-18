@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Domain\Moderation\Actions\ResolveReviewFlagsAction;
+use App\Domain\Moderation\Enums\ModerationAction;
 use App\Domain\Moderation\Exceptions\InvalidFlagOutcomeException;
+use App\Domain\Moderation\Models\ModerationLog;
 use App\Domain\Moderation\Models\ReviewFlag;
 use App\Domain\Reviews\Enums\ReviewStatus;
 use App\Domain\Reviews\Events\ReviewStatusChanged;
@@ -65,4 +67,20 @@ it('refuses non-admins', function (): void {
         ->toThrow(ModerationNotPermittedException::class);
 
     expect($review->flags()->whereNull('resolved_at')->count())->toBe(1);
+});
+
+it('records the resolution and the resulting status change in the moderation log', function (): void {
+    Event::fake([ReviewStatusChanged::class]);
+    $review = Review::factory()->flagged()->create();
+    ReviewFlag::factory()->count(2)->for($review)->create();
+
+    app(ResolveReviewFlagsAction::class)->handle($review, User::factory()->admin()->create(), ReviewStatus::Removed);
+
+    $actions = ModerationLog::query()->orderBy('id')->pluck('action')->all();
+
+    expect($actions)->toBe([
+        ModerationAction::ReviewFlagsResolved,
+        ModerationAction::ReviewStatusChanged,
+    ])
+        ->and(ModerationLog::query()->first()?->details)->toEqualCanonicalizing(['outcome' => 'removed', 'flags_resolved' => 2]);
 });

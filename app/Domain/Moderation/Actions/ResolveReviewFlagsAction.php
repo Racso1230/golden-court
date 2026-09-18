@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Moderation\Actions;
 
+use App\Domain\Moderation\Enums\ModerationAction;
+use App\Domain\Moderation\Enums\ModerationSubject;
 use App\Domain\Moderation\Exceptions\InvalidFlagOutcomeException;
 use App\Domain\Reviews\Actions\ChangeReviewStatusAction;
 use App\Domain\Reviews\Enums\ReviewStatus;
@@ -19,7 +21,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class ResolveReviewFlagsAction
 {
-    public function __construct(private readonly ChangeReviewStatusAction $changeStatus) {}
+    public function __construct(
+        private readonly ChangeReviewStatusAction $changeStatus,
+        private readonly RecordModerationLogAction $recordLog,
+    ) {}
 
     /**
      * @throws ModerationNotPermittedException when the actor is not an admin
@@ -36,9 +41,14 @@ final class ResolveReviewFlagsAction
         }
 
         return DB::transaction(function () use ($review, $admin, $outcome): Review {
-            $review->flags()->whereNull('resolved_at')->update([
+            $resolved = $review->flags()->whereNull('resolved_at')->update([
                 'resolved_at' => now(),
                 'resolved_by_user_id' => $admin->id,
+            ]);
+
+            $this->recordLog->handle($admin, ModerationAction::ReviewFlagsResolved, ModerationSubject::Review, $review->id, [
+                'outcome' => $outcome->value,
+                'flags_resolved' => $resolved,
             ]);
 
             if ($review->status !== $outcome) {

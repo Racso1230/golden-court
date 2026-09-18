@@ -8,7 +8,23 @@ import type { ModerationReview } from '@/components/ModerationReviewCard.vue';
 import ReviewOutcomeButtons from '@/components/ReviewOutcomeButtons.vue';
 import { dashboard as adminDashboard } from '@/routes/admin';
 
-defineProps<{ review: ModerationReview }>();
+// Minimal shape for this phase; generated Data types arrive in Phase 7.
+type LogEntry = {
+    id: number;
+    actionLabel: string;
+    actorLabel: string;
+    actorDisplayName: string | null;
+    details: Record<string, unknown>;
+    createdAt: string;
+};
+
+defineProps<{ review: ModerationReview; log: LogEntry[] }>();
+
+function describeDetails(details: Record<string, unknown>): string {
+    return Object.entries(details)
+        .map(([key, value]) => `${key}: ${String(value)}`)
+        .join(', ');
+}
 </script>
 
 <template>
@@ -42,6 +58,32 @@ defineProps<{ review: ModerationReview }>();
             />
         </section>
 
-        <slot name="log" />
+        <section class="space-y-2">
+            <h2 class="font-semibold">Moderation history</h2>
+            <p v-if="log.length === 0" class="text-muted-foreground text-sm">
+                No moderation actions recorded yet.
+            </p>
+            <ol v-else class="space-y-1 text-sm">
+                <li
+                    v-for="entry in log"
+                    :key="entry.id"
+                    class="flex flex-wrap gap-x-2"
+                >
+                    <span class="text-muted-foreground tabular-nums">
+                        {{ new Date(entry.createdAt).toLocaleString() }}
+                    </span>
+                    <span class="font-medium">{{ entry.actionLabel }}</span>
+                    <span class="text-muted-foreground">
+                        by {{ entry.actorDisplayName ?? entry.actorLabel }}
+                    </span>
+                    <span
+                        v-if="Object.keys(entry.details).length > 0"
+                        class="text-muted-foreground"
+                    >
+                        ({{ describeDetails(entry.details) }})
+                    </span>
+                </li>
+            </ol>
+        </section>
     </div>
 </template>
