@@ -23,9 +23,9 @@ it('renders the venue index with results, filters and options', function (): voi
             ->where('venues.data.0.courtCount', 1)
             ->where('venues.data.0.distanceKm', null)
             ->where('venues.total', 1)
-            ->where('filters.term', 'manchester')
-            ->where('filters.court_type', 'indoor')
-            ->where('filters.sort', 'name')
+            ->where('criteria.term', 'manchester')
+            ->where('criteria.courtType', 'indoor')
+            ->where('criteria.sort', 'name')
             ->has('options.courtTypes', 3)
             ->has('options.sorts', 4)
             ->where('options.sorts.0.label', 'Highest rated'));

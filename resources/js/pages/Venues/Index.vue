@@ -1,45 +1,27 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { reactive } from 'vue';
+import { Head } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import NativeSelect from '@/components/NativeSelect.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
-import ScoreBadge from '@/components/ScoreBadge.vue';
+import VenueCard from '@/components/VenueCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { index as venuesIndex, show as venueShow } from '@/routes/venues';
-import type { Paginated } from '@/types';
-
-// Minimal shapes for this phase; generated Data types arrive in Phase 7.
-type VenueSummary = {
-    id: number;
-    name: string;
-    slug: string;
-    city: string;
-    aggregateScore: number;
-    reviewCount: number;
-    courtCount: number;
-    distanceKm: number | null;
-    hasGoldenCourt: boolean;
-};
-
-type Option = { value: string; label: string };
-
-type Filters = {
-    term?: string | null;
-    city?: string | null;
-    lat?: string | null;
-    lng?: string | null;
-    radius?: string | null;
-    court_type?: string | null;
-    wall_type?: string | null;
-    surface?: string | null;
-    min_score?: string | null;
-    sort?: string | null;
-};
+import { useVenueSearch } from '@/composables/useVenueSearch';
+import type {
+    CourtType,
+    Option,
+    Paginated,
+    Surface,
+    VenueSearchCriteria,
+    VenueSort,
+    VenueSummary,
+    WallType,
+} from '@/types';
 
 const props = defineProps<{
     venues: Paginated<VenueSummary>;
-    filters: Filters;
+    criteria: VenueSearchCriteria;
     options: {
         courtTypes: Option[];
         wallTypes: Option[];
@@ -48,29 +30,101 @@ const props = defineProps<{
     };
 }>();
 
-const form = reactive({
-    term: props.filters.term ?? '',
-    city: props.filters.city ?? '',
-    lat: props.filters.lat ?? '',
-    lng: props.filters.lng ?? '',
-    radius: props.filters.radius ?? '',
-    court_type: props.filters.court_type ?? '',
-    wall_type: props.filters.wall_type ?? '',
-    surface: props.filters.surface ?? '',
-    min_score: props.filters.min_score ?? '',
-    sort: props.filters.sort ?? 'score',
-});
+const { criteria, hasFilters, search, setNear, reset } = useVenueSearch(
+    props.criteria,
+);
 
-function search(): void {
-    const query = Object.fromEntries(
-        Object.entries(form).filter(([, value]) => value !== ''),
-    );
-
-    router.get(venuesIndex.url(), query, { preserveState: true });
+/**
+ * Native selects speak strings; the criteria speak enums or null. The value
+ * is only ever one of the offered options, so the narrowing cast is safe.
+ */
+function enumOrNull<T extends string>(
+    value: string,
+    allowed: Option[],
+): T | null {
+    return allowed.some((option) => option.value === value)
+        ? (value as T)
+        : null;
 }
 
-const selectClass =
-    'border-input bg-background h-9 w-full rounded-md border px-3 text-sm shadow-xs';
+const courtType = computed({
+    get: () => criteria.courtType ?? '',
+    set: (value: string) => {
+        criteria.courtType = enumOrNull<CourtType>(
+            value,
+            props.options.courtTypes,
+        );
+    },
+});
+
+const wallType = computed({
+    get: () => criteria.wallType ?? '',
+    set: (value: string) => {
+        criteria.wallType = enumOrNull<WallType>(
+            value,
+            props.options.wallTypes,
+        );
+    },
+});
+
+const surface = computed({
+    get: () => criteria.surface ?? '',
+    set: (value: string) => {
+        criteria.surface = enumOrNull<Surface>(value, props.options.surfaces);
+    },
+});
+
+const sort = computed({
+    get: () => criteria.sort,
+    set: (value: string) => {
+        criteria.sort =
+            enumOrNull<VenueSort>(value, props.options.sorts) ?? 'score';
+    },
+});
+
+const term = computed({
+    get: () => criteria.term ?? '',
+    set: (value: string) => {
+        criteria.term = value.trim() === '' ? null : value;
+    },
+});
+
+const city = computed({
+    get: () => criteria.city ?? '',
+    set: (value: string) => {
+        criteria.city = value.trim() === '' ? null : value;
+    },
+});
+
+const minScore = computed({
+    get: () => (criteria.minScore === null ? '' : String(criteria.minScore)),
+    set: (value: string) => {
+        criteria.minScore = value === '' ? null : Number(value);
+    },
+});
+
+const latitude = ref(
+    props.criteria.near ? String(props.criteria.near.latitude) : '',
+);
+const longitude = ref(
+    props.criteria.near ? String(props.criteria.near.longitude) : '',
+);
+const radius = ref(String(props.criteria.radiusKm));
+
+function submit(): void {
+    const lat = latitude.value === '' ? null : Number(latitude.value);
+    const lng = longitude.value === '' ? null : Number(longitude.value);
+    setNear(lat, lng);
+    criteria.radiusKm = radius.value === '' ? 25 : Number(radius.value);
+    search();
+}
+
+function clear(): void {
+    latitude.value = '';
+    longitude.value = '';
+    radius.value = '25';
+    reset();
+}
 </script>
 
 <template>
@@ -80,90 +134,59 @@ const selectClass =
 
     <form
         class="mt-6 grid gap-4 rounded-xl border p-4 sm:grid-cols-2 lg:grid-cols-4"
-        @submit.prevent="search"
+        aria-label="Filter venues"
+        @submit.prevent="submit"
     >
         <div class="grid gap-1.5 lg:col-span-2">
             <Label for="term">Search</Label>
             <Input
                 id="term"
-                v-model="form.term"
+                v-model="term"
                 type="search"
                 placeholder="Venue or city"
             />
         </div>
         <div class="grid gap-1.5">
             <Label for="city">City</Label>
-            <Input
-                id="city"
-                v-model="form.city"
-                placeholder="e.g. Manchester"
-            />
+            <Input id="city" v-model="city" placeholder="e.g. Manchester" />
         </div>
         <div class="grid gap-1.5">
             <Label for="sort">Sort by</Label>
-            <select id="sort" v-model="form.sort" :class="selectClass">
-                <option
-                    v-for="option in options.sorts"
-                    :key="option.value"
-                    :value="option.value"
-                >
-                    {{ option.label }}
-                </option>
-            </select>
+            <NativeSelect id="sort" v-model="sort" :options="options.sorts" />
         </div>
 
         <div class="grid gap-1.5">
             <Label for="court_type">Court type</Label>
-            <select
+            <NativeSelect
                 id="court_type"
-                v-model="form.court_type"
-                :class="selectClass"
-            >
-                <option value="">Any</option>
-                <option
-                    v-for="option in options.courtTypes"
-                    :key="option.value"
-                    :value="option.value"
-                >
-                    {{ option.label }}
-                </option>
-            </select>
+                v-model="courtType"
+                :options="options.courtTypes"
+                placeholder="Any"
+            />
         </div>
         <div class="grid gap-1.5">
             <Label for="wall_type">Walls</Label>
-            <select
+            <NativeSelect
                 id="wall_type"
-                v-model="form.wall_type"
-                :class="selectClass"
-            >
-                <option value="">Any</option>
-                <option
-                    v-for="option in options.wallTypes"
-                    :key="option.value"
-                    :value="option.value"
-                >
-                    {{ option.label }}
-                </option>
-            </select>
+                v-model="wallType"
+                :options="options.wallTypes"
+                placeholder="Any"
+            />
         </div>
         <div class="grid gap-1.5">
             <Label for="surface">Surface</Label>
-            <select id="surface" v-model="form.surface" :class="selectClass">
-                <option value="">Any</option>
-                <option
-                    v-for="option in options.surfaces"
-                    :key="option.value"
-                    :value="option.value"
-                >
-                    {{ option.label }}
-                </option>
-            </select>
+            <NativeSelect
+                id="surface"
+                v-model="surface"
+                :options="options.surfaces"
+                placeholder="Any"
+            />
         </div>
         <div class="grid gap-1.5">
             <Label for="min_score">Minimum score</Label>
             <Input
                 id="min_score"
-                v-model="form.min_score"
+                v-model="minScore"
                 type="number"
                 min="0"
                 max="5"
@@ -173,64 +196,42 @@ const selectClass =
 
         <div class="grid gap-1.5">
             <Label for="lat">Latitude</Label>
-            <Input id="lat" v-model="form.lat" type="number" step="any" />
+            <Input id="lat" v-model="latitude" type="number" step="any" />
         </div>
         <div class="grid gap-1.5">
             <Label for="lng">Longitude</Label>
-            <Input id="lng" v-model="form.lng" type="number" step="any" />
+            <Input id="lng" v-model="longitude" type="number" step="any" />
         </div>
         <div class="grid gap-1.5">
             <Label for="radius">Within (km)</Label>
             <Input
                 id="radius"
-                v-model="form.radius"
+                v-model="radius"
                 type="number"
                 min="1"
                 max="200"
-                placeholder="25"
             />
         </div>
-        <div class="flex items-end">
-            <Button type="submit" class="w-full">Search</Button>
+        <div class="flex items-end gap-2">
+            <Button type="submit" class="flex-1">Search</Button>
+            <Button
+                v-if="hasFilters"
+                type="button"
+                variant="ghost"
+                @click="clear"
+            >
+                Clear
+            </Button>
         </div>
     </form>
 
-    <p class="text-muted-foreground mt-6 text-sm">
+    <p class="text-muted-foreground mt-6 text-sm" role="status">
         {{ venues.total }} {{ venues.total === 1 ? 'venue' : 'venues' }} found
     </p>
 
     <ul class="mt-4 space-y-3">
-        <li
-            v-for="venue in venues.data"
-            :key="venue.id"
-            class="flex flex-wrap items-start justify-between gap-3 rounded-xl border p-4"
-        >
-            <div>
-                <Link
-                    :href="venueShow(venue.slug)"
-                    class="font-semibold hover:underline"
-                >
-                    {{ venue.name }}
-                </Link>
-                <p class="text-muted-foreground text-sm">
-                    {{ venue.city }} · {{ venue.courtCount }}
-                    {{ venue.courtCount === 1 ? 'court' : 'courts' }}
-                    <template v-if="venue.distanceKm !== null">
-                        · {{ venue.distanceKm.toFixed(1) }} km away
-                    </template>
-                </p>
-            </div>
-            <div class="flex items-center gap-2">
-                <ScoreBadge
-                    :score="venue.aggregateScore"
-                    :review-count="venue.reviewCount"
-                />
-                <span
-                    v-if="venue.hasGoldenCourt"
-                    class="text-xs font-medium text-amber-700 dark:text-amber-300"
-                    >Golden Court</span
-                >
-            </div>
+        <li v-for="venue in venues.data" :key="venue.id">
+            <VenueCard :venue="venue" />
         </li>
     </ul>
 

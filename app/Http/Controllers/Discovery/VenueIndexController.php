@@ -22,7 +22,8 @@ class VenueIndexController extends Controller
 {
     public function __invoke(VenueSearchRequest $request, GoldenCourtQuery $goldenCourts): Response
     {
-        $venues = (new VenueSearchQuery($request->toCriteria()))->paginate()->withQueryString();
+        $criteria = $request->toCriteria();
+        $venues = (new VenueSearchQuery($criteria))->paginate()->withQueryString();
 
         $golden = $goldenCourts->forCities(
             $venues->getCollection()->map(fn (Venue $venue): string => $venue->city)->all(),
@@ -35,7 +36,7 @@ class VenueIndexController extends Controller
 
         return Inertia::render('Venues/Index', [
             'venues' => $venues,
-            'filters' => $request->validated(),
+            'criteria' => $criteria,
             'options' => [
                 'courtTypes' => OptionData::fromEnum(CourtType::class),
                 'wallTypes' => OptionData::fromEnum(WallType::class),

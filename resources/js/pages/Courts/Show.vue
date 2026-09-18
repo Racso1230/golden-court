@@ -1,114 +1,76 @@
 <script setup lang="ts">
-import { Form, Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import FlagReviewController from '@/actions/App/Http/Controllers/Moderation/FlagReviewController';
-import DestroyReviewReplyController from '@/actions/App/Http/Controllers/Reviews/DestroyReviewReplyController';
-import StoreReviewReplyController from '@/actions/App/Http/Controllers/Reviews/StoreReviewReplyController';
-import ToggleReviewVoteController from '@/actions/App/Http/Controllers/Reviews/ToggleReviewVoteController';
-import UpdateReviewReplyController from '@/actions/App/Http/Controllers/Reviews/UpdateReviewReplyController';
-import InputError from '@/components/InputError.vue';
+import DimensionBars from '@/components/DimensionBars.vue';
+import GoldenCourtBadge from '@/components/GoldenCourtBadge.vue';
+import NativeSelect from '@/components/NativeSelect.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
+import ReviewCard from '@/components/ReviewCard.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
 import { Button } from '@/components/ui/button';
+import { login } from '@/routes';
 import { show as courtShow } from '@/routes/courts';
-import { create as reviewCreate } from '@/routes/reviews';
+import { create as reviewCreate, edit as reviewEdit } from '@/routes/reviews';
 import { show as venueShow } from '@/routes/venues';
-import type { Paginated } from '@/types';
-
-// Minimal shapes for this phase; generated Data types arrive in Phase 7.
-type Scores = {
-    glass: number;
-    lighting: number;
-    turf: number;
-    facilities: number;
-};
-
-type Review = {
-    id: number;
-    scores: Scores;
-    overall: number;
-    body: string;
-    authorDisplayName: string;
-    playedOn: string | null;
-    createdAt: string;
-    helpfulCount: number;
-    hasVoted: boolean;
-    isAuthor: boolean;
-    reply: { id: number; body: string; authorDisplayName: string } | null;
-};
-
-type CourtDetail = {
-    court: {
-        id: number;
-        name: string;
-        slug: string;
-        courtTypeLabel: string;
-        wallTypeLabel: string;
-        surfaceLabel: string;
-        aggregateScore: number;
-        reviewCount: number;
-        isGoldenCourt: boolean;
-    };
-    venueName: string;
-    venueSlug: string;
-    venueCity: string;
-    averages: {
-        glass: number | null;
-        lighting: number | null;
-        turf: number | null;
-        facilities: number | null;
-    };
-    reviews: Paginated<Review>;
-};
-
-type Option = { value: string; label: string };
+import { send as sendVerification } from '@/routes/verification';
+import type {
+    CourtDetail,
+    Option,
+    Paginated,
+    Review,
+    ReviewSort,
+} from '@/types';
 
 const props = defineProps<{
     court: CourtDetail;
-    sort: string;
+    reviews: Paginated<Review>;
+    sort: ReviewSort;
     sortOptions: Option[];
     flagReasons: Option[];
     canReview: boolean;
+    hasReviewed: boolean;
     canReply: boolean;
 }>();
 
 const page = usePage();
 // Guests have no user even though the shared type says otherwise.
-const signedIn = computed(() => Boolean(page.props.auth.user));
+const user = computed(() => page.props.auth.user ?? null);
 
-const dimensions: { key: keyof Scores; label: string }[] = [
-    { key: 'glass', label: 'Glass' },
-    { key: 'lighting', label: 'Lighting' },
-    { key: 'turf', label: 'Turf' },
-    { key: 'facilities', label: 'Facilities' },
-];
+const ownReview = computed(
+    () => props.reviews.data.find((review) => review.isAuthor) ?? null,
+);
 
-const selectClass =
-    'border-input bg-background h-9 rounded-md border px-3 text-sm shadow-xs';
+type Cta =
+    | { kind: 'review' }
+    | { kind: 'login' }
+    | { kind: 'verify' }
+    | { kind: 'reviewed'; reviewId: number | null }
+    | { kind: 'owner' };
 
-const textareaClass =
-    'border-input bg-background w-full rounded-md border px-3 py-2 text-sm shadow-xs';
+const cta = computed<Cta>(() => {
+    if (props.canReview) return { kind: 'review' };
+    if (user.value === null) return { kind: 'login' };
+    if (!user.value.email_verified_at) return { kind: 'verify' };
+    if (props.hasReviewed) {
+        return { kind: 'reviewed', reviewId: ownReview.value?.id ?? null };
+    }
 
-function changeSort(event: Event): void {
-    const sort = (event.target as HTMLSelectElement).value;
+    return { kind: 'owner' };
+});
 
-    router.get(
-        courtShow.url({
-            venue: props.court.venueSlug,
-            court: props.court.court.slug,
-        }),
-        { sort },
-        { preserveScroll: true },
-    );
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
+const sortModel = computed({
+    get: () => props.sort,
+    set: (value: string) => {
+        router.get(
+            courtShow.url({
+                venue: props.court.venueSlug,
+                court: props.court.court.slug,
+            }),
+            { sort: value },
+            { preserveScroll: true },
+        );
+    },
+});
 </script>
 
 <template>
@@ -120,14 +82,15 @@ function formatDate(value: string): string {
 
     <header class="mt-4 flex flex-wrap items-start justify-between gap-4">
         <div class="space-y-2">
-            <h1 class="text-3xl font-bold tracking-tight">
-                {{ court.court.name }}
-                <span
+            <div class="flex flex-wrap items-center gap-3">
+                <h1 class="text-3xl font-bold tracking-tight">
+                    {{ court.court.name }}
+                </h1>
+                <GoldenCourtBadge
                     v-if="court.court.isGoldenCourt"
-                    class="ml-2 align-middle text-sm font-medium text-amber-700 dark:text-amber-300"
-                    >Golden Court of {{ court.venueCity }}</span
-                >
-            </h1>
+                    :city="court.venueCity"
+                />
+            </div>
             <p class="text-muted-foreground text-sm">
                 {{ court.court.courtTypeLabel }} ·
                 {{ court.court.wallTypeLabel }} ·
@@ -136,243 +99,80 @@ function formatDate(value: string): string {
             <ScoreBadge
                 :score="court.court.aggregateScore"
                 :review-count="court.court.reviewCount"
+                size="lg"
             />
         </div>
-        <Button v-if="canReview" as-child>
-            <Link :href="reviewCreate(court.court.id)">Write a review</Link>
-        </Button>
-    </header>
 
-    <section class="mt-6 grid gap-3 sm:grid-cols-4">
-        <div
-            v-for="dimension in dimensions"
-            :key="dimension.key"
-            class="rounded-xl border p-3"
-        >
-            <p class="text-muted-foreground text-xs uppercase">
-                {{ dimension.label }}
+        <div class="text-sm">
+            <Button v-if="cta.kind === 'review'" as-child>
+                <Link :href="reviewCreate(court.court.id)">Write a review</Link>
+            </Button>
+            <p v-else-if="cta.kind === 'login'" class="text-muted-foreground">
+                <Link :href="login()" class="underline">Log in</Link>
+                to write a review.
             </p>
-            <p class="text-xl font-semibold tabular-nums">
-                {{
-                    court.averages[dimension.key] === null
-                        ? '–'
-                        : court.averages[dimension.key]?.toFixed(1)
-                }}
+            <p v-else-if="cta.kind === 'verify'" class="text-muted-foreground">
+                Verify your email to write a review.
+                <Link :href="sendVerification()" as="button" class="underline">
+                    Resend the link
+                </Link>
+            </p>
+            <p
+                v-else-if="cta.kind === 'reviewed'"
+                class="text-muted-foreground"
+            >
+                You have reviewed this court.
+                <Link
+                    v-if="cta.reviewId !== null"
+                    :href="reviewEdit(cta.reviewId)"
+                    class="underline"
+                >
+                    Edit your review
+                </Link>
+            </p>
+            <p v-else class="text-muted-foreground">
+                Venue owners cannot review courts.
             </p>
         </div>
+    </header>
+
+    <section class="mt-6" aria-labelledby="averages-heading">
+        <h2 id="averages-heading" class="sr-only">Average scores</h2>
+        <DimensionBars :averages="court.averages" />
     </section>
 
-    <section class="mt-8 space-y-4">
-        <div class="flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-semibold">
-                Reviews ({{ court.reviews.total }})
+    <section class="mt-8 space-y-4" aria-labelledby="reviews-heading">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <h2 id="reviews-heading" class="text-2xl font-semibold">
+                Reviews ({{ reviews.total }})
             </h2>
             <label class="flex items-center gap-2 text-sm">
                 Sort
-                <select :class="selectClass" :value="sort" @change="changeSort">
-                    <option
-                        v-for="option in sortOptions"
-                        :key="option.value"
-                        :value="option.value"
-                    >
-                        {{ option.label }}
-                    </option>
-                </select>
+                <NativeSelect
+                    id="review-sort"
+                    v-model="sortModel"
+                    :options="sortOptions"
+                    class="w-auto"
+                />
             </label>
         </div>
 
-        <p v-if="court.reviews.data.length === 0" class="text-muted-foreground">
+        <p v-if="reviews.data.length === 0" class="text-muted-foreground">
             No reviews yet.
         </p>
 
         <ul class="space-y-4">
-            <li
-                v-for="review in court.reviews.data"
-                :key="review.id"
-                class="rounded-xl border p-4"
-            >
-                <div
-                    class="flex flex-wrap items-baseline justify-between gap-2"
-                >
-                    <p class="font-semibold">{{ review.authorDisplayName }}</p>
-                    <p class="text-muted-foreground text-xs">
-                        {{ formatDate(review.createdAt) }}
-                        <template v-if="review.playedOn">
-                            · played {{ formatDate(review.playedOn) }}
-                        </template>
-                    </p>
-                </div>
-                <p class="mt-1 text-sm">
-                    <span class="font-semibold tabular-nums">{{
-                        review.overall.toFixed(1)
-                    }}</span>
-                    <span class="text-muted-foreground">
-                        · glass {{ review.scores.glass }} · lighting
-                        {{ review.scores.lighting }} · turf
-                        {{ review.scores.turf }} · facilities
-                        {{ review.scores.facilities }}
-                    </span>
-                </p>
-                <p class="mt-3 whitespace-pre-line">{{ review.body }}</p>
-
-                <div
-                    class="text-muted-foreground mt-3 flex flex-wrap items-center gap-3 text-xs"
-                >
-                    <span>
-                        {{ review.helpfulCount }} found this helpful
-                        <template v-if="review.hasVoted">
-                            · including you
-                        </template>
-                    </span>
-
-                    <template v-if="signedIn && !review.isAuthor">
-                        <Form
-                            v-bind="ToggleReviewVoteController.form(review.id)"
-                            v-slot="{ processing }"
-                        >
-                            <Button
-                                type="submit"
-                                size="sm"
-                                variant="outline"
-                                :disabled="processing"
-                            >
-                                {{
-                                    review.hasVoted ? 'Undo helpful' : 'Helpful'
-                                }}
-                            </Button>
-                        </Form>
-
-                        <details>
-                            <summary class="cursor-pointer hover:underline">
-                                Report
-                            </summary>
-                            <Form
-                                v-bind="FlagReviewController.form(review.id)"
-                                class="mt-2 flex flex-wrap items-start gap-2"
-                                v-slot="{ processing, errors }"
-                            >
-                                <div>
-                                    <select
-                                        name="reason"
-                                        required
-                                        :class="selectClass"
-                                        aria-label="Reason"
-                                    >
-                                        <option
-                                            v-for="reason in flagReasons"
-                                            :key="reason.value"
-                                            :value="reason.value"
-                                        >
-                                            {{ reason.label }}
-                                        </option>
-                                    </select>
-                                    <InputError :message="errors.reason" />
-                                </div>
-                                <input
-                                    name="details"
-                                    class="border-input bg-background h-9 min-w-48 flex-1 rounded-md border px-3 text-sm shadow-xs"
-                                    placeholder="Anything to add? (optional)"
-                                    maxlength="1000"
-                                />
-                                <Button
-                                    type="submit"
-                                    size="sm"
-                                    variant="outline"
-                                    :disabled="processing"
-                                >
-                                    Send report
-                                </Button>
-                            </Form>
-                        </details>
-                    </template>
-                </div>
-
-                <blockquote
-                    v-if="review.reply"
-                    class="bg-muted mt-3 rounded-md p-3 text-sm"
-                >
-                    <p class="font-semibold">
-                        Reply from {{ review.reply.authorDisplayName }}
-                    </p>
-                    <p class="mt-1 whitespace-pre-line">
-                        {{ review.reply.body }}
-                    </p>
-
-                    <div
-                        v-if="canReply"
-                        class="mt-2 flex flex-wrap items-start gap-2"
-                    >
-                        <details class="flex-1">
-                            <summary
-                                class="cursor-pointer text-xs hover:underline"
-                            >
-                                Edit reply
-                            </summary>
-                            <Form
-                                v-bind="
-                                    UpdateReviewReplyController.form(review.id)
-                                "
-                                class="mt-2 space-y-2"
-                                v-slot="{ processing, errors }"
-                            >
-                                <textarea
-                                    name="body"
-                                    required
-                                    maxlength="1000"
-                                    rows="3"
-                                    :class="textareaClass"
-                                    :default-value="review.reply.body"
-                                />
-                                <InputError :message="errors.body" />
-                                <Button
-                                    type="submit"
-                                    size="sm"
-                                    :disabled="processing"
-                                >
-                                    Save reply
-                                </Button>
-                            </Form>
-                        </details>
-                        <Form
-                            v-bind="
-                                DestroyReviewReplyController.form(review.id)
-                            "
-                            v-slot="{ processing }"
-                        >
-                            <Button
-                                type="submit"
-                                size="sm"
-                                variant="destructive"
-                                :disabled="processing"
-                            >
-                                Delete reply
-                            </Button>
-                        </Form>
-                    </div>
-                </blockquote>
-
-                <Form
-                    v-else-if="canReply"
-                    v-bind="StoreReviewReplyController.form(review.id)"
-                    class="mt-3 space-y-2"
-                    v-slot="{ processing, errors }"
-                >
-                    <textarea
-                        name="body"
-                        required
-                        maxlength="1000"
-                        rows="3"
-                        :class="textareaClass"
-                        placeholder="Reply publicly as the venue"
-                    />
-                    <InputError :message="errors.body" />
-                    <Button type="submit" size="sm" :disabled="processing">
-                        Post reply
-                    </Button>
-                </Form>
+            <li v-for="review in reviews.data" :key="review.id">
+                <ReviewCard
+                    :review="review"
+                    :signed-in="user !== null"
+                    :can-reply="canReply"
+                    :can-edit="review.isAuthor"
+                    :flag-reasons="flagReasons"
+                />
             </li>
         </ul>
 
-        <PaginationLinks :links="court.reviews.links" />
+        <PaginationLinks :links="reviews.links" />
     </section>
 </template>

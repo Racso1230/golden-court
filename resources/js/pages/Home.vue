@@ -1,35 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import ScoreBadge from '@/components/ScoreBadge.vue';
+import RatingStars from '@/components/RatingStars.vue';
+import VenueCard from '@/components/VenueCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { show as courtShow } from '@/routes/courts';
-import { index as venuesIndex, show as venueShow } from '@/routes/venues';
-
-// Minimal shapes for this phase; generated Data types arrive in Phase 7.
-type VenueSummary = {
-    id: number;
-    name: string;
-    slug: string;
-    city: string;
-    aggregateScore: number;
-    reviewCount: number;
-    courtCount: number;
-    hasGoldenCourt: boolean;
-};
-
-type RecentReview = {
-    id: number;
-    overall: number;
-    excerpt: string;
-    authorDisplayName: string;
-    courtName: string;
-    courtSlug: string;
-    venueName: string;
-    venueSlug: string;
-    createdAt: string;
-};
+import { index as venuesIndex } from '@/routes/venues';
+import type { RecentReview, VenueSummary } from '@/types';
 
 defineProps<{
     topVenues: VenueSummary[];
@@ -39,7 +17,9 @@ defineProps<{
 const term = ref('');
 
 function search(): void {
-    router.get(venuesIndex.url(), term.value ? { term: term.value } : {});
+    const query = term.value.trim();
+
+    router.get(venuesIndex.url(), query ? { term: query } : {});
 }
 </script>
 
@@ -59,20 +39,25 @@ function search(): void {
             role="search"
             @submit.prevent="search"
         >
+            <label for="home-search" class="sr-only">
+                Search venues or cities
+            </label>
             <Input
+                id="home-search"
                 v-model="term"
                 type="search"
                 name="term"
                 placeholder="Search venues or cities"
-                aria-label="Search venues or cities"
             />
             <Button type="submit">Search</Button>
         </form>
     </section>
 
-    <section class="mt-10 space-y-4">
+    <section class="mt-10 space-y-4" aria-labelledby="top-venues-heading">
         <div class="flex items-baseline justify-between">
-            <h2 class="text-2xl font-semibold">Top rated venues</h2>
+            <h2 id="top-venues-heading" class="text-2xl font-semibold">
+                Top rated venues
+            </h2>
             <Link :href="venuesIndex()" class="text-sm hover:underline">
                 Browse all venues
             </Link>
@@ -81,38 +66,16 @@ function search(): void {
             No venue has enough reviews to rank yet.
         </p>
         <ul v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <li
-                v-for="venue in topVenues"
-                :key="venue.id"
-                class="rounded-xl border p-4"
-            >
-                <Link
-                    :href="venueShow(venue.slug)"
-                    class="font-semibold hover:underline"
-                >
-                    {{ venue.name }}
-                </Link>
-                <p class="text-muted-foreground text-sm">
-                    {{ venue.city }} · {{ venue.courtCount }}
-                    {{ venue.courtCount === 1 ? 'court' : 'courts' }}
-                </p>
-                <div class="mt-2 flex items-center gap-2">
-                    <ScoreBadge
-                        :score="venue.aggregateScore"
-                        :review-count="venue.reviewCount"
-                    />
-                    <span
-                        v-if="venue.hasGoldenCourt"
-                        class="text-xs font-medium text-amber-700 dark:text-amber-300"
-                        >Golden Court</span
-                    >
-                </div>
+            <li v-for="venue in topVenues" :key="venue.id">
+                <VenueCard :venue="venue" />
             </li>
         </ul>
     </section>
 
-    <section class="mt-10 space-y-4">
-        <h2 class="text-2xl font-semibold">Latest reviews</h2>
+    <section class="mt-10 space-y-4" aria-labelledby="recent-heading">
+        <h2 id="recent-heading" class="text-2xl font-semibold">
+            Latest reviews
+        </h2>
         <p v-if="recentReviews.length === 0" class="text-muted-foreground">
             No reviews yet. Be the first.
         </p>
@@ -134,9 +97,7 @@ function search(): void {
                     >
                         {{ review.venueName }} · {{ review.courtName }}
                     </Link>
-                    <span class="text-sm font-semibold tabular-nums">
-                        {{ review.overall.toFixed(1) }}
-                    </span>
+                    <RatingStars :value="review.overall" size="sm" />
                 </div>
                 <p class="mt-2 text-sm">{{ review.excerpt }}</p>
                 <p class="text-muted-foreground mt-2 text-xs">
