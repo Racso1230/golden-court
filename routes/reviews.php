@@ -6,6 +6,7 @@ use App\Http\Controllers\Moderation\FlagReviewController;
 use App\Http\Controllers\Reviews\CreateReviewController;
 use App\Http\Controllers\Reviews\DestroyReviewController;
 use App\Http\Controllers\Reviews\DestroyReviewReplyController;
+use App\Http\Controllers\Reviews\EditReviewController;
 use App\Http\Controllers\Reviews\StoreReviewController;
 use App\Http\Controllers\Reviews\StoreReviewReplyController;
 use App\Http\Controllers\Reviews\ToggleReviewVoteController;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('courts/{court}/reviews/create', CreateReviewController::class)->name('reviews.create');
+    Route::get('reviews/{review}/edit', EditReviewController::class)->name('reviews.edit');
 
     // TODO (Phase 8): replace with the named `throttle:reviews` limiter.
     Route::middleware('throttle:10,1')->group(function (): void {

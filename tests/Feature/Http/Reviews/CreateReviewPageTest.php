@@ -34,8 +34,8 @@ it('renders the form with the court and venue summary', function (): void {
             ->component('Reviews/Create')
             ->where('court.id', $court->id)
             ->where('court.name', 'Court 3')
-            ->where('court.venue.name', $court->venue->name)
-            ->where('court.venue.city', $court->venue->city));
+            ->where('venueName', $court->venue->name)
+            ->where('venueSlug', $court->venue->slug));
 });
 
 it('forbids venue owners', function (): void {
