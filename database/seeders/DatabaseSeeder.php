@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Domain\Courts\Models\Court;
-use App\Domain\Reviews\Contracts\RatingAggregator;
+use App\Domain\Reviews\Jobs\RecalculateCourtScore;
 use App\Domain\Reviews\Models\Review;
-use App\Domain\Reviews\ValueObjects\CourtScores;
 use App\Domain\Users\Models\User;
 use App\Domain\Venues\Models\Venue;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Config;
 
 class DatabaseSeeder extends Seeder
 {
@@ -48,8 +48,6 @@ class DatabaseSeeder extends Seeder
         ['name' => 'Bay Padel Cardiff', 'city' => 'Cardiff', 'latitude' => 51.4640, 'longitude' => -3.1650, 'postcode' => 'CF10 4PA'],
     ];
 
-    public function __construct(private readonly RatingAggregator $aggregator) {}
-
     public function run(): void
     {
         User::factory()->admin()->create([
@@ -70,8 +68,7 @@ class DatabaseSeeder extends Seeder
 
         $this->seedReviews(Court::query()->get(), $players);
 
-        // TODO (Phase 4): replace with the RecalculateAggregates job run synchronously.
-        $this->recalculateAggregates($venues);
+        $this->recalculateAggregates();
     }
 
     /**
@@ -154,35 +151,21 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * @param  Collection<int, Venue>  $venues
+     * Run the real recalculation pipeline, synchronously. The court job
+     * dispatches the venue job, so the queue is switched to sync for the
+     * duration rather than leaving venue jobs behind for a worker.
      */
-    private function recalculateAggregates(Collection $venues): void
+    private function recalculateAggregates(): void
     {
-        foreach ($venues as $venue) {
-            $venueScores = [];
+        $previousConnection = Config::string('queue.default');
+        Config::set('queue.default', 'sync');
 
-            foreach ($venue->courts as $court) {
-                $courtScores = $court->publishedReviews()
-                    ->get()
-                    ->map(fn (Review $review): CourtScores => $review->scores())
-                    ->all();
-
-                $aggregate = $this->aggregator->aggregate($courtScores);
-
-                $court->forceFill([
-                    'aggregate_score' => $aggregate->value,
-                    'review_count' => $aggregate->reviewCount,
-                ])->save();
-
-                $venueScores = [...$venueScores, ...$courtScores];
-            }
-
-            $aggregate = $this->aggregator->aggregate($venueScores);
-
-            $venue->forceFill([
-                'aggregate_score' => $aggregate->value,
-                'review_count' => $aggregate->reviewCount,
-            ])->save();
+        try {
+            Court::query()->each(function (Court $court): void {
+                RecalculateCourtScore::dispatchSync($court->id);
+            });
+        } finally {
+            Config::set('queue.default', $previousConnection);
         }
     }
 }
