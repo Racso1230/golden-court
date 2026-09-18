@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\PendingCommand;
 use PHPUnit\Framework\Assert;
 use Tests\TestCase;
 
@@ -46,6 +47,23 @@ function expectSqlState(string $sqlState, Closure $statement): void
     }
 
     Assert::fail(sprintf('Expected the database to reject the statement with SQLSTATE %s, but it succeeded.', $sqlState));
+}
+
+/**
+ * Run an artisan command through the console test harness. The plain helper is
+ * typed as returning an int too, which is never the case with mocked output.
+ *
+ * @param  array<string, mixed>  $parameters
+ */
+function runArtisan(string $command, array $parameters = []): PendingCommand
+{
+    $pending = \Pest\Laravel\artisan($command, $parameters);
+
+    if (! $pending instanceof PendingCommand) {
+        throw new LogicException('Expected a PendingCommand; is console output mocking disabled?');
+    }
+
+    return $pending;
 }
 
 function expectUniqueViolation(Closure $statement): void

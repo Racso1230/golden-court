@@ -19,6 +19,9 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Tests assert exact means; the Bayesian strategy is exercised by its own tests. -->
+        <env name="GOLDEN_COURT_AGGREGATION" value="simple"/>
+        <env name="GOLDEN_COURT_MIN_ACCOUNT_AGE_HOURS" value="1"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

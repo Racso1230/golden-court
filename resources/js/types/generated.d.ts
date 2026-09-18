@@ -179,6 +179,7 @@ playedOn: string | null,
 };
 }
 namespace Enums {
+export type AggregationStrategy = 'simple' | 'bayesian';
 export type ReviewSort = 'recent' | 'helpful' | 'highest' | 'lowest';
 export type ReviewStatus = 'pending' | 'published' | 'flagged' | 'removed';
 }
