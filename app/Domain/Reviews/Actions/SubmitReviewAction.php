@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Reviews\Actions;
 
+use App\Domain\Reviews\Contracts\ReviewPublicationRule;
 use App\Domain\Reviews\Data\SubmitReviewData;
 use App\Domain\Reviews\Enums\ReviewStatus;
+use App\Domain\Reviews\Events\ReviewStatusChanged;
 use App\Domain\Reviews\Events\ReviewSubmitted;
 use App\Domain\Reviews\Exceptions\ReviewAlreadyExistsException;
 use App\Domain\Reviews\Models\Review;
@@ -15,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 
 final class SubmitReviewAction
 {
+    public function __construct(private readonly ReviewPublicationRule $publicationRule) {}
+
     /**
      * @throws ReviewAlreadyExistsException when the user has already reviewed the court
      */
@@ -42,6 +46,17 @@ final class SubmitReviewAction
             }
 
             DB::afterCommit(fn () => ReviewSubmitted::dispatch($review->id, $review->court_id));
+
+            if ($this->publicationRule->shouldAutoPublish($user, $review)) {
+                $review->forceFill(['status' => ReviewStatus::Published])->save();
+
+                DB::afterCommit(fn () => ReviewStatusChanged::dispatch(
+                    $review->id,
+                    $review->court_id,
+                    ReviewStatus::Pending,
+                    ReviewStatus::Published,
+                ));
+            }
 
             return $review;
         });
