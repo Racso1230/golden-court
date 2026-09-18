@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require getenv('LARAVEL_INSTALLER_AUTOLOADER') ?: __DIR__.'/vendor/autoload.php';
 
 use Laravel\Chisel\Chisel;
