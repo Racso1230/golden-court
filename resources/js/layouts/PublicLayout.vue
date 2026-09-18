@@ -2,6 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import HeaderSearch from '@/components/HeaderSearch.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, home, login, register } from '@/routes';
 import { index as venuesIndex } from '@/routes/venues';
@@ -15,7 +16,8 @@ const user = computed(() => page.props.auth.user ?? null);
     <div class="bg-background text-foreground flex min-h-screen flex-col">
         <header class="border-b">
             <nav
-                class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3"
+                class="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-3"
+                aria-label="Main"
             >
                 <Link
                     :href="home()"
@@ -24,6 +26,10 @@ const user = computed(() => page.props.auth.user ?? null);
                     <AppLogoIcon class="size-6 fill-current" />
                     <span>{{ page.props.name }}</span>
                 </Link>
+
+                <HeaderSearch
+                    class="order-last w-full sm:order-none sm:w-auto"
+                />
 
                 <div class="flex items-center gap-4 text-sm">
                     <Link :href="venuesIndex()" class="hover:underline">
