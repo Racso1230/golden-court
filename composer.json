@@ -1,15 +1,16 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "racso1230/golden-court",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Golden Court: a Trustpilot-style review hub for padel courts.",
     "keywords": [
         "laravel",
-        "framework"
+        "padel",
+        "reviews"
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "inertiajs/inertia-laravel": "^3.0",
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",
@@ -55,26 +56,14 @@
             "Composer\\Config::disableProcessTimeout",
             "@php artisan dev"
         ],
-        "lint": [
-            "pint --parallel"
-        ],
-        "lint:check": [
-            "pint --parallel --test"
-        ],
-        "ci:check": [
-            "Composer\\Config::disableProcessTimeout",
-            "npm run check",
-            "npm run types:check",
+        "lint": "vendor/bin/pint --test",
+        "lint:fix": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=1G",
+        "test": "vendor/bin/pest",
+        "check": [
+            "@lint",
+            "@analyse",
             "@test"
-        ],
-        "types:check": [
-            "phpstan analyse"
-        ],
-        "test": [
-            "@php artisan config:clear --ansi",
-            "@lint:check",
-            "@types:check",
-            "@php artisan test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -88,19 +77,14 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
-            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
-        ],
-        "pre-package-uninstall": [
-            "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ]
     },
     "extra": {
         "laravel": {
             "dont-discover": [],
             "installer": {
-                "post-create-project": [
-                ]
+                "post-create-project": []
             }
         }
     },
