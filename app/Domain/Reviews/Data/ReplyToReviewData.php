@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Reviews\Data;
+
+use Spatie\LaravelData\Data;
+
+final class ReplyToReviewData extends Data
+{
+    public function __construct(
+        public string $body,
+    ) {}
+}

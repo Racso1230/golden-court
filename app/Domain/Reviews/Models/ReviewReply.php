@@ -32,6 +32,11 @@ class ReviewReply extends Model
     /** @use HasFactory<ReviewReplyFactory> */
     use HasFactory;
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
+
     /**
      * @return BelongsTo<Review, $this>
      */

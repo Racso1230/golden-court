@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Form, Head, Link, router, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import FlagReviewController from '@/actions/App/Http/Controllers/Moderation/FlagReviewController';
+import DestroyReviewReplyController from '@/actions/App/Http/Controllers/Reviews/DestroyReviewReplyController';
+import StoreReviewReplyController from '@/actions/App/Http/Controllers/Reviews/StoreReviewReplyController';
+import ToggleReviewVoteController from '@/actions/App/Http/Controllers/Reviews/ToggleReviewVoteController';
+import UpdateReviewReplyController from '@/actions/App/Http/Controllers/Reviews/UpdateReviewReplyController';
+import InputError from '@/components/InputError.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
 import { Button } from '@/components/ui/button';
@@ -26,6 +33,7 @@ type Review = {
     createdAt: string;
     helpfulCount: number;
     hasVoted: boolean;
+    isAuthor: boolean;
     reply: { id: number; body: string; authorDisplayName: string } | null;
 };
 
@@ -59,8 +67,14 @@ const props = defineProps<{
     court: CourtDetail;
     sort: string;
     sortOptions: Option[];
+    flagReasons: Option[];
     canReview: boolean;
+    canReply: boolean;
 }>();
+
+const page = usePage();
+// Guests have no user even though the shared type says otherwise.
+const signedIn = computed(() => Boolean(page.props.auth.user));
 
 const dimensions: { key: keyof Scores; label: string }[] = [
     { key: 'glass', label: 'Glass' },
@@ -68,6 +82,12 @@ const dimensions: { key: keyof Scores; label: string }[] = [
     { key: 'turf', label: 'Turf' },
     { key: 'facilities', label: 'Facilities' },
 ];
+
+const selectClass =
+    'border-input bg-background h-9 rounded-md border px-3 text-sm shadow-xs';
+
+const textareaClass =
+    'border-input bg-background w-full rounded-md border px-3 py-2 text-sm shadow-xs';
 
 function changeSort(event: Event): void {
     const sort = (event.target as HTMLSelectElement).value;
@@ -149,11 +169,7 @@ function formatDate(value: string): string {
             </h2>
             <label class="flex items-center gap-2 text-sm">
                 Sort
-                <select
-                    class="border-input bg-background h-9 rounded-md border px-3 text-sm shadow-xs"
-                    :value="sort"
-                    @change="changeSort"
-                >
+                <select :class="selectClass" :value="sort" @change="changeSort">
                     <option
                         v-for="option in sortOptions"
                         :key="option.value"
@@ -198,10 +214,79 @@ function formatDate(value: string): string {
                     </span>
                 </p>
                 <p class="mt-3 whitespace-pre-line">{{ review.body }}</p>
-                <p class="text-muted-foreground mt-3 text-xs">
-                    {{ review.helpfulCount }} found this helpful
-                    <template v-if="review.hasVoted">· including you</template>
-                </p>
+
+                <div
+                    class="text-muted-foreground mt-3 flex flex-wrap items-center gap-3 text-xs"
+                >
+                    <span>
+                        {{ review.helpfulCount }} found this helpful
+                        <template v-if="review.hasVoted">
+                            · including you
+                        </template>
+                    </span>
+
+                    <template v-if="signedIn && !review.isAuthor">
+                        <Form
+                            v-bind="ToggleReviewVoteController.form(review.id)"
+                            v-slot="{ processing }"
+                        >
+                            <Button
+                                type="submit"
+                                size="sm"
+                                variant="outline"
+                                :disabled="processing"
+                            >
+                                {{
+                                    review.hasVoted ? 'Undo helpful' : 'Helpful'
+                                }}
+                            </Button>
+                        </Form>
+
+                        <details>
+                            <summary class="cursor-pointer hover:underline">
+                                Report
+                            </summary>
+                            <Form
+                                v-bind="FlagReviewController.form(review.id)"
+                                class="mt-2 flex flex-wrap items-start gap-2"
+                                v-slot="{ processing, errors }"
+                            >
+                                <div>
+                                    <select
+                                        name="reason"
+                                        required
+                                        :class="selectClass"
+                                        aria-label="Reason"
+                                    >
+                                        <option
+                                            v-for="reason in flagReasons"
+                                            :key="reason.value"
+                                            :value="reason.value"
+                                        >
+                                            {{ reason.label }}
+                                        </option>
+                                    </select>
+                                    <InputError :message="errors.reason" />
+                                </div>
+                                <input
+                                    name="details"
+                                    class="border-input bg-background h-9 min-w-48 flex-1 rounded-md border px-3 text-sm shadow-xs"
+                                    placeholder="Anything to add? (optional)"
+                                    maxlength="1000"
+                                />
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    variant="outline"
+                                    :disabled="processing"
+                                >
+                                    Send report
+                                </Button>
+                            </Form>
+                        </details>
+                    </template>
+                </div>
+
                 <blockquote
                     v-if="review.reply"
                     class="bg-muted mt-3 rounded-md p-3 text-sm"
@@ -212,7 +297,79 @@ function formatDate(value: string): string {
                     <p class="mt-1 whitespace-pre-line">
                         {{ review.reply.body }}
                     </p>
+
+                    <div
+                        v-if="canReply"
+                        class="mt-2 flex flex-wrap items-start gap-2"
+                    >
+                        <details class="flex-1">
+                            <summary
+                                class="cursor-pointer text-xs hover:underline"
+                            >
+                                Edit reply
+                            </summary>
+                            <Form
+                                v-bind="
+                                    UpdateReviewReplyController.form(review.id)
+                                "
+                                class="mt-2 space-y-2"
+                                v-slot="{ processing, errors }"
+                            >
+                                <textarea
+                                    name="body"
+                                    required
+                                    maxlength="1000"
+                                    rows="3"
+                                    :class="textareaClass"
+                                    :default-value="review.reply.body"
+                                />
+                                <InputError :message="errors.body" />
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    :disabled="processing"
+                                >
+                                    Save reply
+                                </Button>
+                            </Form>
+                        </details>
+                        <Form
+                            v-bind="
+                                DestroyReviewReplyController.form(review.id)
+                            "
+                            v-slot="{ processing }"
+                        >
+                            <Button
+                                type="submit"
+                                size="sm"
+                                variant="destructive"
+                                :disabled="processing"
+                            >
+                                Delete reply
+                            </Button>
+                        </Form>
+                    </div>
                 </blockquote>
+
+                <Form
+                    v-else-if="canReply"
+                    v-bind="StoreReviewReplyController.form(review.id)"
+                    class="mt-3 space-y-2"
+                    v-slot="{ processing, errors }"
+                >
+                    <textarea
+                        name="body"
+                        required
+                        maxlength="1000"
+                        rows="3"
+                        :class="textareaClass"
+                        placeholder="Reply publicly as the venue"
+                    />
+                    <InputError :message="errors.body" />
+                    <Button type="submit" size="sm" :disabled="processing">
+                        Post reply
+                    </Button>
+                </Form>
             </li>
         </ul>
 

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Discovery;
 use App\Domain\Courts\Data\CourtDetailData;
 use App\Domain\Courts\Models\Court;
 use App\Domain\Courts\Queries\GoldenCourtQuery;
+use App\Domain\Moderation\Enums\FlagReason;
 use App\Domain\Reviews\Enums\ReviewSort;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\Queries\CourtDimensionAveragesQuery;
@@ -40,7 +41,10 @@ class CourtShowController extends Controller
             ),
             'sort' => $request->sort(),
             'sortOptions' => OptionData::fromEnum(ReviewSort::class),
+            'flagReasons' => OptionData::fromEnum(FlagReason::class),
             'canReview' => $viewer !== null && Gate::forUser($viewer)->allows('create', [Review::class, $court]),
+            // UI hint only; ReviewReplyPolicy is what actually decides per review.
+            'canReply' => $viewer !== null && ($viewer->isAdmin() || $venue->isOwnedBy($viewer)),
         ]);
     }
 }

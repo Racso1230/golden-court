@@ -32,6 +32,7 @@ final class ReviewData extends Data
         public CarbonImmutable $updatedAt,
         public int $helpfulCount,
         public bool $hasVoted,
+        public bool $isAuthor,
         public ?ReviewReplyData $reply,
     ) {}
 
@@ -57,6 +58,7 @@ final class ReviewData extends Data
             updatedAt: $review->updated_at ?? CarbonImmutable::now(),
             helpfulCount: $review->helpful_count,
             hasVoted: self::hasVoted($review, $viewer),
+            isAuthor: $viewer !== null && $review->isOwnedBy($viewer),
             reply: $review->reply === null ? null : ReviewReplyData::fromModel($review->reply),
         );
     }
