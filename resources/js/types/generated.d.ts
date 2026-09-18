@@ -110,6 +110,15 @@ lighting: number | null,
 turf: number | null,
 facilities: number | null,
 };
+export type OwnReviewData = {
+review: App.Domain.Reviews.Data.ReviewData,
+statusLabel: string,
+canEdit: boolean,
+courtName: string,
+courtSlug: string,
+venueName: string,
+venueSlug: string,
+};
 export type RecentReviewData = {
 id: number,
 overall: number,
@@ -183,6 +192,19 @@ label: string,
 }
 }
 namespace Users {
+namespace Data {
+export type NotificationData = {
+id: string,
+message: string,
+url: string | null,
+readAt: string | null,
+createdAt: string,
+};
+export type NotificationsSummaryData = {
+unreadCount: number,
+items: App.Domain.Users.Data.NotificationData[],
+};
+}
 namespace Enums {
 export type Role = 'player' | 'venue_owner' | 'admin';
 }

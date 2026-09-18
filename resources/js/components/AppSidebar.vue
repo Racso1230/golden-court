@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid, ShieldCheck } from '@lucide/vue';
+import {
+    BookOpen,
+    Building2,
+    FolderGit2,
+    LayoutGrid,
+    MessageSquareText,
+    ShieldCheck,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -16,6 +23,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import {
+    claims as accountClaims,
+    reviews as accountReviews,
+} from '@/routes/account';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import type { NavItem } from '@/types';
 
@@ -27,6 +38,16 @@ const mainNavItems = computed<NavItem[]>(() => {
             title: 'Dashboard',
             href: dashboard(),
             icon: LayoutGrid,
+        },
+        {
+            title: 'My reviews',
+            href: accountReviews(),
+            icon: MessageSquareText,
+        },
+        {
+            title: 'My claims',
+            href: accountClaims(),
+            icon: Building2,
         },
     ];
 

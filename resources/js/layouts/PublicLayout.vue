@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import HeaderSearch from '@/components/HeaderSearch.vue';
+import NotificationsMenu from '@/components/NotificationsMenu.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, home, login, register } from '@/routes';
 import { index as venuesIndex } from '@/routes/venues';
@@ -39,6 +40,7 @@ const user = computed(() => page.props.auth.user ?? null);
                         <Link :href="dashboard()" class="hover:underline">
                             Dashboard
                         </Link>
+                        <NotificationsMenu />
                     </template>
                     <template v-else>
                         <Link :href="login()" class="hover:underline">

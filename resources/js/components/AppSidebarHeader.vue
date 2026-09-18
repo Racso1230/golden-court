@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import HeaderSearch from '@/components/HeaderSearch.vue';
+import NotificationsMenu from '@/components/NotificationsMenu.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
 
@@ -24,6 +25,9 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
-        <HeaderSearch class="hidden md:block" />
+        <div class="flex items-center gap-2">
+            <HeaderSearch class="hidden md:block" />
+            <NotificationsMenu />
+        </div>
     </header>
 </template>

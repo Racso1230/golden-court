@@ -49,6 +49,7 @@ it('renders a court with a page of reviews and replies in a fixed number of quer
     DB::enableQueryLog();
     actingAs($viewer)->get(route('courts.show', [$court->venue, $court]))->assertOk();
 
-    // venue + court bindings, viewer, review count + page, users, replies, reply users, votes, averages, golden court, policy pre-check
-    expect(count(DB::getQueryLog()))->toBeLessThanOrEqual(13);
+    // venue + court bindings, viewer, review count + page, users, replies, reply users, votes,
+    // averages, golden court, policy pre-check, has-reviewed check, notification count + items
+    expect(count(DB::getQueryLog()))->toBeLessThanOrEqual(16);
 });

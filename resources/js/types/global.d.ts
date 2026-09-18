@@ -18,6 +18,8 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            /** Null for guests. */
+            notifications: App.Domain.Users.Data.NotificationsSummaryData | null;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };
