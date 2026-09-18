@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Courts\Models\Court;
+use App\Domain\Moderation\Models\ReviewFlag;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Users\Models\User;
 
@@ -81,5 +82,48 @@ describe('changeStatus', function (): void {
         expect(User::factory()->admin()->create()->can('changeStatus', $review))->toBeTrue()
             ->and($review->user->can('changeStatus', $review))->toBeFalse()
             ->and(User::factory()->venueOwner()->create()->can('changeStatus', $review))->toBeFalse();
+    });
+});
+
+describe('vote', function (): void {
+    it('lets any other signed-in user vote on a published review', function (): void {
+        $review = Review::factory()->create();
+
+        expect(User::factory()->player()->create()->can('vote', $review))->toBeTrue()
+            ->and(User::factory()->venueOwner()->create()->can('vote', $review))->toBeTrue()
+            ->and(User::factory()->admin()->create()->can('vote', $review))->toBeTrue();
+    });
+
+    it('stops the author voting on their own review', function (): void {
+        $review = Review::factory()->create();
+
+        expect($review->user->can('vote', $review))->toBeFalse();
+    });
+
+    it('stops votes on reviews that are not published', function (): void {
+        $voter = User::factory()->player()->create();
+
+        expect($voter->can('vote', Review::factory()->pending()->create()))->toBeFalse()
+            ->and($voter->can('vote', Review::factory()->flagged()->create()))->toBeFalse();
+    });
+});
+
+describe('flag', function (): void {
+    it('lets another user flag a published review once', function (): void {
+        $review = Review::factory()->create();
+        $reporter = User::factory()->player()->create();
+
+        expect($reporter->can('flag', $review))->toBeTrue();
+
+        ReviewFlag::factory()->for($review)->for($reporter)->create();
+
+        expect($reporter->can('flag', $review))->toBeFalse();
+    });
+
+    it('stops the author and stops flags on unpublished reviews', function (): void {
+        $review = Review::factory()->create();
+
+        expect($review->user->can('flag', $review))->toBeFalse()
+            ->and(User::factory()->player()->create()->can('flag', Review::factory()->pending()->create()))->toBeFalse();
     });
 });

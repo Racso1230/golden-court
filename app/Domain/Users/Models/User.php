@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Models;
 
+use App\Domain\Moderation\Contracts\ModerationActor;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Users\Enums\Role;
 use Database\Factories\UserFactory;
@@ -39,7 +40,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 #[Fillable(['name', 'display_name', 'bio', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
-class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
+class User extends Authenticatable implements ModerationActor, MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
@@ -75,5 +76,20 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function isVenueOwner(): bool
     {
         return $this->role === Role::VenueOwner;
+    }
+
+    public function moderatorId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function canModerate(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function moderatorLabel(): string
+    {
+        return sprintf('%s:%d', $this->role->value, $this->id);
     }
 }

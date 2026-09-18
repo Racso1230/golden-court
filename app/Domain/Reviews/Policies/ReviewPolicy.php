@@ -44,4 +44,24 @@ final class ReviewPolicy
     {
         return $user->isAdmin();
     }
+
+    /**
+     * Anyone signed in may find a published review helpful, except its author.
+     */
+    public function vote(User $user, Review $review): bool
+    {
+        return $review->isPublished() && ! $review->isOwnedBy($user);
+    }
+
+    /**
+     * Anyone signed in may flag a published review once, except its author.
+     */
+    public function flag(User $user, Review $review): bool
+    {
+        if (! $review->isPublished() || $review->isOwnedBy($user)) {
+            return false;
+        }
+
+        return ! $review->flags()->where('user_id', $user->id)->exists();
+    }
 }

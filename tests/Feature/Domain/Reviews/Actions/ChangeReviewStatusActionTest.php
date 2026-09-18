@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Moderation\SystemActor;
 use App\Domain\Reviews\Actions\ChangeReviewStatusAction;
 use App\Domain\Reviews\Enums\ReviewStatus;
 use App\Domain\Reviews\Events\ReviewStatusChanged;
@@ -50,4 +51,13 @@ it('refuses to let a non-admin moderate', function (): void {
         ->toThrow(ModerationNotPermittedException::class);
 
     expect($review->refresh()->status)->toBe(ReviewStatus::Pending);
+});
+
+it('lets the system actor moderate, for automatic escalation', function (): void {
+    Event::fake([ReviewStatusChanged::class]);
+    $review = Review::factory()->create();
+
+    app(ChangeReviewStatusAction::class)->handle($review, ReviewStatus::Flagged, new SystemActor);
+
+    expect($review->refresh()->status)->toBe(ReviewStatus::Flagged);
 });
