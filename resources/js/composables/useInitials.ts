@@ -12,16 +12,18 @@ export function getInitials(fullName?: string): string {
     }
 
     const names = fullName.trim().split(/\s+/u).filter(Boolean);
+    const first = names[0];
+    const last = names[names.length - 1];
 
-    if (names.length === 0) {
+    if (first === undefined || last === undefined) {
         return '';
     }
 
     if (names.length === 1) {
-        return getInitial(names[0]).toUpperCase();
+        return getInitial(first).toUpperCase();
     }
 
-    return `${getInitial(names[0])}${getInitial(names[names.length - 1])}`.toUpperCase();
+    return `${getInitial(first)}${getInitial(last)}`.toUpperCase();
 }
 
 export function useInitials(): UseInitialsReturn {
