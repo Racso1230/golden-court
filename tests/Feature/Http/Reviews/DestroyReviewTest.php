@@ -15,7 +15,7 @@ it('lets the owner delete their review and queues a recalculation', function ():
 
     actingAs($review->user)
         ->delete(route('reviews.destroy', $review))
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('courts.show', [$review->court->venue, $review->court]));
 
     expect(Review::query()->find($review->id))->toBeNull()
         ->and(Review::withTrashed()->find($review->id))->not->toBeNull();
@@ -28,7 +28,7 @@ it('lets an admin delete any review', function (): void {
 
     actingAs(User::factory()->admin()->create())
         ->delete(route('reviews.destroy', $review))
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('courts.show', [$review->court->venue, $review->court]));
 
     expect(Review::query()->find($review->id))->toBeNull();
 });

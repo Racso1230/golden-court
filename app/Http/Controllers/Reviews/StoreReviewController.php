@@ -34,6 +34,8 @@ class StoreReviewController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Thanks, your review has been submitted.')]);
 
-        return to_route('dashboard');
+        $court->loadMissing('venue');
+
+        return to_route('courts.show', [$court->venue, $court]);
     }
 }

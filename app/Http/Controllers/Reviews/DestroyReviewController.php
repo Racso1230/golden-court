@@ -17,10 +17,12 @@ class DestroyReviewController extends Controller
     {
         Gate::authorize('delete', $review);
 
+        $review->loadMissing('court.venue');
+
         $action->handle($review);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your review has been deleted.')]);
 
-        return to_route('dashboard');
+        return to_route('courts.show', [$review->court->venue, $review->court]);
     }
 }

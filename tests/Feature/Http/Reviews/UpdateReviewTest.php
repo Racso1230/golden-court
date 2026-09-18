@@ -29,10 +29,9 @@ it('lets the owner update their review and queues a recalculation', function ():
     $review = Review::factory()->for(User::factory()->player())->create();
 
     actingAs($review->user)
-        ->from(route('dashboard'))
         ->patch(route('reviews.update', $review), updatePayload())
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('courts.show', [$review->court->venue, $review->court]));
 
     $review->refresh();
 

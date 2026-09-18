@@ -22,6 +22,8 @@ class UpdateReviewController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your review has been updated.')]);
 
-        return back();
+        $review->loadMissing('court.venue');
+
+        return to_route('courts.show', [$review->court->venue, $review->court]);
     }
 }

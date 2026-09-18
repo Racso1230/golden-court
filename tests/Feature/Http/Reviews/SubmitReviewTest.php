@@ -51,7 +51,7 @@ it('creates and auto-publishes a review for a verified player, then queues a rec
     actingAs($player)
         ->post(route('reviews.store'), reviewPayload($court))
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('courts.show', [$court->venue, $court]));
 
     $review = Review::query()->sole();
 
