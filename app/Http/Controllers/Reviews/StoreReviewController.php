@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Reviews;
 use App\Domain\Courts\Models\Court;
 use App\Domain\Reviews\Actions\SubmitReviewAction;
 use App\Domain\Reviews\Exceptions\ReviewAlreadyExistsException;
+use App\Domain\Reviews\Exceptions\ReviewContentRejectedException;
 use App\Domain\Reviews\Models\Review;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Reviews\SubmitReviewRequest;
@@ -30,6 +31,8 @@ class StoreReviewController extends Controller
             throw ValidationException::withMessages([
                 'court_id' => __('You have already reviewed this court.'),
             ]);
+        } catch (ReviewContentRejectedException $exception) {
+            throw ValidationException::withMessages(['body' => $exception->getMessage()]);
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Thanks, your review has been submitted.')]);

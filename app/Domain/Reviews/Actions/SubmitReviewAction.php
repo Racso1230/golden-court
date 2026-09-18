@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain\Reviews\Actions;
 
+use App\Domain\Reviews\Contracts\ReviewContentRule;
 use App\Domain\Reviews\Contracts\ReviewPublicationRule;
 use App\Domain\Reviews\Data\SubmitReviewData;
 use App\Domain\Reviews\Enums\ReviewStatus;
 use App\Domain\Reviews\Events\ReviewStatusChanged;
 use App\Domain\Reviews\Events\ReviewSubmitted;
 use App\Domain\Reviews\Exceptions\ReviewAlreadyExistsException;
+use App\Domain\Reviews\Exceptions\ReviewContentRejectedException;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -17,13 +19,23 @@ use Illuminate\Support\Facades\DB;
 
 final class SubmitReviewAction
 {
-    public function __construct(private readonly ReviewPublicationRule $publicationRule) {}
+    public function __construct(
+        private readonly ReviewPublicationRule $publicationRule,
+        private readonly ReviewContentRule $contentRule,
+    ) {}
 
     /**
+     * @throws ReviewContentRejectedException when the body fails the content rule
      * @throws ReviewAlreadyExistsException when the user has already reviewed the court
      */
     public function handle(User $user, SubmitReviewData $data): Review
     {
+        $violation = $this->contentRule->violation($data->body);
+
+        if ($violation !== null) {
+            throw ReviewContentRejectedException::because($violation);
+        }
+
         return DB::transaction(function () use ($user, $data): Review {
             $review = new Review;
             $review->fill([

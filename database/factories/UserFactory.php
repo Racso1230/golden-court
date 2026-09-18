@@ -46,7 +46,21 @@ class UserFactory extends Factory
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+            // An established account: old enough to pass the minimum-age rule for reviewing.
+            'created_at' => now()->subWeek(),
+            'updated_at' => now()->subWeek(),
         ];
+    }
+
+    /**
+     * An account created moments ago, which the anti-abuse rules hold back.
+     */
+    public function justRegistered(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     public function player(): static
