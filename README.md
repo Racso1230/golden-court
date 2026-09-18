@@ -1,74 +1,119 @@
 # Golden Court
 
-Golden Court is a Trustpilot-style review hub for padel courts. Players rate individual courts at a venue on glass, lighting, turf and facilities, and venue owners can claim their venue and reply to reviews.
+Golden Court is a Trustpilot-style review hub for padel courts. Players find a
+venue, see its courts, read what other players thought and leave their own
+review, scoring each court on glass, lighting, turf and facilities. Venue
+owners can claim a venue and reply to reviews once an admin approves the
+claim. There is no booking, pricing or availability, and none is planned.
 
-There is no booking, pricing or availability functionality, and none is planned.
+The name is a play on padel's **golden point**, the single point that decides
+a game. The top-scoring court in each city, with at least five reviews,
+carries the Golden Court badge.
+
+## Features
+
+- Search venues by name or city (PostgreSQL full-text) or by distance from a
+  point (`earthdistance`), filter by court type, wall type, surface and
+  minimum score.
+- Four-dimension reviews with a written body; one review per player per
+  court, enforced by the database.
+- Court and venue scores recalculated by queued jobs through a swappable
+  aggregator: a Bayesian average by default, a simple mean if you prefer.
+- Helpful votes, flagging with automatic escalation after three flags, and an
+  admin area for claims and moderation with an append-only audit log.
+- Venue claims with admin approval, owner replies, database notifications.
+- Strict typing end to end: PHP `strict_types` and Larastan level 8, Data
+  classes generating the TypeScript types the Vue pages use.
+
+## Stack
+
+PHP 8.4 · Laravel 13 · PostgreSQL 17 · Inertia 2 · Vue 3 · TypeScript ·
+Tailwind CSS 4 · shadcn-vue · spatie/laravel-data ·
+spatie/laravel-typescript-transformer · Pest · Larastan · Pint · Vitest ·
+vite-plus (oxlint, oxfmt)
 
 ## Requirements
 
-- PHP 8.4 with the `pgsql` and `pdo_pgsql` extensions
-- Composer 2
-- Node 22 and npm
-- PostgreSQL 17
-- [Laravel Herd](https://herd.laravel.com) for local serving (optional but assumed)
+- PHP 8.4 with `pgsql` and `pdo_pgsql`
+- Composer 2, Node 22 and npm
+- PostgreSQL 17 (the `cube` and `earthdistance` contrib extensions ship with
+  every build; the migrations enable them)
+- [Laravel Herd](https://herd.laravel.com) for local serving (optional)
 
-## Setup
-
-1. Clone the repository into your Herd sites directory and let Herd serve it as `golden-court.test`.
-2. Create the two databases the app and its test suite use:
-
-   ```sh
-   createdb golden_court
-   createdb golden_court_test
-   ```
-
-3. Install dependencies:
-
-   ```sh
-   composer install
-   npm install
-   ```
-
-4. Configure the environment:
-
-   ```sh
-   cp .env.example .env
-   php artisan key:generate
-   ```
-
-   The example file already points at `127.0.0.1:5432` with the `postgres` / `postgres` credentials. Adjust `DB_USERNAME` and `DB_PASSWORD` if your server differs. Tests use the same credentials against `golden_court_test` (see `phpunit.xml`).
-
-5. Migrate and seed:
-
-   ```sh
-   php artisan migrate --seed
-   ```
-
-6. Start the frontend dev server:
-
-   ```sh
-   npm run dev
-   ```
-
-7. Run a queue worker. Court and venue scores are recalculated by queued jobs on the `database` connection, so without a worker they will not update after a review is submitted:
-
-   ```sh
-   php artisan queue:work
-   ```
-
-## Running checks
-
-Both scripts must pass before a change is considered done.
+## Local setup
 
 ```sh
-composer check   # Pint (style), PHPStan level 8, Pest against PostgreSQL
-npm run check    # lint, format check, production build, vue-tsc
+git clone git@github.com:Racso1230/golden-court.git
+cd golden-court
+
+createdb golden_court
+createdb golden_court_test
+
+composer install
+npm install
+
+cp .env.example .env          # already points at 127.0.0.1:5432, postgres/postgres
+php artisan key:generate
+php artisan migrate --seed    # 12 fictional UK venues, ~300 reviews
+
+npm run dev                   # Vite dev server
+php artisan queue:work        # scores are recalculated by queued jobs
 ```
 
-Individual steps are available as `composer lint`, `composer analyse`, `composer test`, `npm run lint`, `npm run format:check`, `npm run build` and `npm run type-check`.
+Seeded logins, password `password`:
 
-The test suite refuses to run without PostgreSQL. It never falls back to SQLite.
+| Role | Email |
+| --- | --- |
+| Admin | `admin@goldencourt.test` |
+| Venue owner (owns the first venue) | `owner@goldencourt.test` |
 
-## Project brief
+Herd serves the project at `http://golden-court.test`. Without Herd,
+`php artisan serve` works too.
 
-Conventions, architecture rules and the phased build plan live in [CLAUDE.md](CLAUDE.md) and [docs/plan](docs/plan/00-overview.md).
+### Queue, schedule and health
+
+- Score recalculation and notifications run on the `database` queue. Run
+  `php artisan queue:work` locally; failed jobs land in `failed_jobs`
+  (`php artisan queue:failed`, `queue:retry`).
+- Soft-deleted reviews and resolved flags are pruned daily by `model:prune`
+  via the scheduler; run `php artisan schedule:work` locally if you want it.
+- `GET /up` is the health check and fails if the database is unreachable.
+
+### Switching the scoring strategy
+
+```sh
+GOLDEN_COURT_AGGREGATION=simple        # default: bayesian
+GOLDEN_COURT_BAYESIAN_CONFIDENCE=5
+php artisan golden-court:recalculate-scores
+```
+
+## Checks
+
+Both must pass before a change is done. CI runs them against a
+`postgres:17` service on every push and pull request.
+
+```sh
+composer check   # Pint, PHPStan level 8, Pest against PostgreSQL
+npm run check    # lint, format, build, generated types, vue-tsc, Vitest
+```
+
+Individual steps: `composer lint`, `composer analyse`, `composer test`,
+`npm run lint`, `npm run format:check`, `npm run build`, `npm run types`,
+`npm run type-check`, `npm run test`.
+
+The frontend commands shell out to `php artisan` (Wayfinder routes and the
+TypeScript transformer), so PHP 8.4 must be on your `PATH`.
+
+## Documentation
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): layering, value objects,
+  database constraints, aggregation, search and geo, authorisation, type
+  safety, testing and known limitations.
+- [docs/notes/query-plans.md](docs/notes/query-plans.md): `EXPLAIN ANALYZE`
+  evidence for the search indexes.
+- [docs/plan/](docs/plan/00-overview.md): the phased build plan the project
+  was built from, and [CLAUDE.md](CLAUDE.md), the standing engineering brief.
+
+## Licence
+
+[MIT](LICENSE.md).
