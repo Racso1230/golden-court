@@ -28,6 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $rejection_reason
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
+ * @property-read Venue $venue
+ * @property-read User $user
+ * @property-read User|null $reviewer
  */
 #[Fillable(['venue_id', 'user_id', 'evidence'])]
 #[UseFactory(VenueClaimFactory::class)]

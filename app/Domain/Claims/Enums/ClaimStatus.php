@@ -20,4 +20,27 @@ enum ClaimStatus: string implements HasLabel
             self::Rejected => 'Rejected',
         };
     }
+
+    /**
+     * A claim is decided exactly once.
+     *
+     * @return list<self>
+     */
+    public function allowedTransitions(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Approved, self::Rejected],
+            self::Approved, self::Rejected => [],
+        };
+    }
+
+    public function canTransitionTo(self $to): bool
+    {
+        return in_array($to, $this->allowedTransitions(), true);
+    }
+
+    public function isSettled(): bool
+    {
+        return $this !== self::Pending;
+    }
 }

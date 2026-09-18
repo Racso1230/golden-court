@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Venues\Models;
 
+use App\Domain\Claims\Models\VenueClaim;
 use App\Domain\Courts\Models\Court;
 use App\Domain\Users\Models\User;
 use App\Domain\Venues\Casts\CoordinatesCast;
@@ -106,9 +107,22 @@ class Venue extends Model
         return $this->belongsTo(User::class, 'claimed_by_user_id');
     }
 
+    /**
+     * @return HasMany<VenueClaim, $this>
+     */
+    public function claims(): HasMany
+    {
+        return $this->hasMany(VenueClaim::class);
+    }
+
     public function isClaimed(): bool
     {
         return $this->claimed_by_user_id !== null;
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->claimed_by_user_id === $user->id;
     }
 
     /**

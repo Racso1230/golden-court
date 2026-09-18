@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import StoreVenueClaimController from '@/actions/App/Http/Controllers/Claims/StoreVenueClaimController';
+import InputError from '@/components/InputError.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
+import { Button } from '@/components/ui/button';
 import { show as courtShow } from '@/routes/courts';
 import { index as venuesIndex } from '@/routes/venues';
 
@@ -35,7 +38,7 @@ type VenueDetail = {
     courts: CourtSummary[];
 };
 
-defineProps<{ venue: VenueDetail }>();
+defineProps<{ venue: VenueDetail; canClaim: boolean }>();
 </script>
 
 <template>
@@ -111,5 +114,30 @@ defineProps<{ venue: VenueDetail }>();
                 </div>
             </li>
         </ul>
+    </section>
+
+    <section v-if="canClaim" class="mt-10 max-w-xl space-y-3">
+        <h2 class="text-xl font-semibold">Do you run this venue?</h2>
+        <p class="text-muted-foreground text-sm">
+            Claim it to reply to reviews as the venue. Tell us how we can
+            confirm you are the owner or manager.
+        </p>
+        <Form
+            v-bind="StoreVenueClaimController.form(venue.slug)"
+            class="space-y-2"
+            v-slot="{ processing, errors }"
+        >
+            <textarea
+                name="evidence"
+                required
+                minlength="20"
+                maxlength="2000"
+                rows="4"
+                class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm shadow-xs"
+                placeholder="e.g. I am the club manager; my email matches the domain on our website."
+            />
+            <InputError :message="errors.evidence" />
+            <Button type="submit" :disabled="processing">Submit claim</Button>
+        </Form>
     </section>
 </template>
