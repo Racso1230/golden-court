@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Claims\Events\VenueClaimApproved;
+use App\Domain\Claims\Events\VenueClaimRejected;
+use App\Domain\Claims\Listeners\NotifyClaimantOfDecision;
 use App\Domain\Claims\Models\VenueClaim;
 use App\Domain\Claims\Policies\VenueClaimPolicy;
 use App\Domain\Reviews\Aggregators\SimpleAverageAggregator;
 use App\Domain\Reviews\Contracts\RatingAggregator;
 use App\Domain\Reviews\Contracts\ReviewPublicationRule;
 use App\Domain\Reviews\Events\ReviewDeleted;
+use App\Domain\Reviews\Events\ReviewReplied;
 use App\Domain\Reviews\Events\ReviewStatusChanged;
 use App\Domain\Reviews\Events\ReviewSubmitted;
 use App\Domain\Reviews\Events\ReviewUpdated;
+use App\Domain\Reviews\Listeners\NotifyAuthorOfReply;
+use App\Domain\Reviews\Listeners\NotifyAuthorOfReviewOutcome;
 use App\Domain\Reviews\Listeners\QueueScoreRecalculation;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\Models\ReviewReply;
@@ -47,5 +53,9 @@ class DomainServiceProvider extends ServiceProvider
             ReviewDeleted::class,
             ReviewStatusChanged::class,
         ], QueueScoreRecalculation::class);
+
+        Event::listen(ReviewStatusChanged::class, NotifyAuthorOfReviewOutcome::class);
+        Event::listen(ReviewReplied::class, NotifyAuthorOfReply::class);
+        Event::listen([VenueClaimApproved::class, VenueClaimRejected::class], NotifyClaimantOfDecision::class);
     }
 }
