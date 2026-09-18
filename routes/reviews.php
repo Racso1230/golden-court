@@ -18,20 +18,25 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('courts/{court}/reviews/create', CreateReviewController::class)->name('reviews.create');
     Route::get('reviews/{review}/edit', EditReviewController::class)->name('reviews.edit');
 
-    // TODO (Phase 8): replace with the named `throttle:reviews` limiter.
-    Route::middleware('throttle:10,1')->group(function (): void {
-        Route::post('reviews', StoreReviewController::class)->name('reviews.store');
+    // Named limiters live in RateLimitServiceProvider.
+    Route::post('reviews', StoreReviewController::class)
+        ->middleware('throttle:reviews')
+        ->name('reviews.store');
+
+    Route::post('reviews/{review}/flags', FlagReviewController::class)
+        ->middleware('throttle:flags')
+        ->name('reviews.flags.store');
+
+    Route::post('reviews/{review}/vote', ToggleReviewVoteController::class)
+        ->middleware('throttle:votes')
+        ->name('reviews.vote');
+
+    Route::middleware('throttle:30,1')->group(function (): void {
         Route::patch('reviews/{review}', UpdateReviewController::class)->name('reviews.update');
         Route::delete('reviews/{review}', DestroyReviewController::class)->name('reviews.destroy');
-
-        Route::post('reviews/{review}/flags', FlagReviewController::class)->name('reviews.flags.store');
 
         Route::post('reviews/{review}/reply', StoreReviewReplyController::class)->name('reviews.reply.store');
         Route::patch('reviews/{review}/reply', UpdateReviewReplyController::class)->name('reviews.reply.update');
         Route::delete('reviews/{review}/reply', DestroyReviewReplyController::class)->name('reviews.reply.destroy');
     });
-
-    Route::post('reviews/{review}/vote', ToggleReviewVoteController::class)
-        ->middleware('throttle:60,1')
-        ->name('reviews.vote');
 });

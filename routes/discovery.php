@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
-Route::get('venues', VenueIndexController::class)->name('venues.index');
+Route::get('venues', VenueIndexController::class)
+    ->middleware('throttle:search')
+    ->name('venues.index');
 Route::get('venues/{venue:slug}', VenueShowController::class)->name('venues.show');
 Route::get('venues/{venue:slug}/courts/{court:slug}', CourtShowController::class)
     ->scopeBindings()
