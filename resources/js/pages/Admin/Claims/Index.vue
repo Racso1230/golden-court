@@ -1,27 +1,55 @@
 <script setup lang="ts">
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import ApproveVenueClaimController from '@/actions/App/Http/Controllers/Admin/ApproveVenueClaimController';
 import RejectVenueClaimController from '@/actions/App/Http/Controllers/Admin/RejectVenueClaimController';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { show as venueShow } from '@/routes/venues';
-import type { Paginated } from '@/types';
+import type { Paginated, VenueClaim } from '@/types';
 
-// Minimal shape for this phase; generated Data types arrive in Phase 7.
-type Claim = {
-    id: number;
-    venueName: string;
-    venueSlug: string;
-    claimantDisplayName: string;
-    claimantEmail: string;
-    evidence: string;
-    submittedAt: string;
-};
+defineProps<{ claims: Paginated<VenueClaim> }>();
 
-defineProps<{ claims: Paginated<Claim> }>();
+// Decision errors come back under a `claim` key that neither form owns.
+const page = usePage();
+
+const approveForm = useForm({});
+const rejectForm = useForm<{ rejection_reason: string }>({
+    rejection_reason: '',
+});
+
+function approve(claim: VenueClaim): void {
+    approveForm.post(ApproveVenueClaimController.url(claim.id), {
+        preserveScroll: true,
+    });
+}
+
+function reject(claim: VenueClaim): void {
+    rejectForm.post(RejectVenueClaimController.url(claim.id), {
+        preserveScroll: true,
+        onSuccess: () => rejectForm.reset(),
+    });
+}
+
+function formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+}
 </script>
 
 <template>
@@ -37,66 +65,88 @@ defineProps<{ claims: Paginated<Claim> }>();
             Nothing to review.
         </p>
 
-        <ul class="space-y-4">
-            <li
-                v-for="claim in claims.data"
-                :key="claim.id"
-                class="space-y-3 rounded-xl border p-4"
-            >
-                <div
-                    class="flex flex-wrap items-baseline justify-between gap-2"
-                >
-                    <Link
-                        :href="venueShow(claim.venueSlug)"
-                        class="font-semibold hover:underline"
-                    >
-                        {{ claim.venueName }}
-                    </Link>
-                    <p class="text-muted-foreground text-xs">
-                        {{ claim.claimantDisplayName }} ·
-                        {{ claim.claimantEmail }} ·
-                        {{ new Date(claim.submittedAt).toLocaleDateString() }}
-                    </p>
-                </div>
-                <p class="text-sm whitespace-pre-line">{{ claim.evidence }}</p>
-
-                <div class="flex flex-wrap items-start gap-3">
-                    <Form
-                        v-bind="ApproveVenueClaimController.form(claim.id)"
-                        v-slot="{ processing, errors }"
-                    >
-                        <Button type="submit" :disabled="processing">
-                            Approve
-                        </Button>
-                        <InputError :message="errors.claim" />
-                    </Form>
-
-                    <Form
-                        v-bind="RejectVenueClaimController.form(claim.id)"
-                        class="flex flex-1 flex-wrap items-start gap-2"
-                        v-slot="{ processing, errors }"
-                    >
-                        <div class="min-w-64 flex-1">
-                            <Input
-                                name="rejection_reason"
-                                placeholder="Reason for rejection"
-                                required
-                                minlength="5"
-                            />
-                            <InputError :message="errors.rejection_reason" />
-                            <InputError :message="errors.claim" />
-                        </div>
-                        <Button
-                            type="submit"
-                            variant="outline"
-                            :disabled="processing"
+        <Table v-else>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Venue</TableHead>
+                    <TableHead>Claimant</TableHead>
+                    <TableHead>Evidence</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead><span class="sr-only">Actions</span></TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                <TableRow v-for="claim in claims.data" :key="claim.id">
+                    <TableCell>
+                        <Link
+                            :href="venueShow(claim.venueSlug)"
+                            class="font-medium hover:underline"
                         >
-                            Reject
-                        </Button>
-                    </Form>
-                </div>
-            </li>
-        </ul>
+                            {{ claim.venueName }}
+                        </Link>
+                    </TableCell>
+                    <TableCell>
+                        {{ claim.claimantDisplayName }}
+                        <span class="text-muted-foreground block text-xs">
+                            {{ claim.claimantEmail }}
+                        </span>
+                    </TableCell>
+                    <TableCell class="max-w-md whitespace-pre-line">
+                        {{ claim.evidence }}
+                    </TableCell>
+                    <TableCell class="whitespace-nowrap">
+                        {{ formatDate(claim.submittedAt) }}
+                    </TableCell>
+                    <TableCell>
+                        <div class="flex flex-col items-start gap-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                :disabled="approveForm.processing"
+                                @click="approve(claim)"
+                            >
+                                Approve
+                            </Button>
+                            <ConfirmDialog
+                                title="Reject this claim?"
+                                :description="`${claim.claimantDisplayName} will be told the claim on ${claim.venueName} was not approved, with your reason.`"
+                                confirm-label="Reject claim"
+                                :processing="rejectForm.processing"
+                                @confirm="reject(claim)"
+                            >
+                                <template #trigger>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                    >
+                                        Reject
+                                    </Button>
+                                </template>
+                                <div class="grid gap-1.5">
+                                    <Label :for="`reason-${claim.id}`">
+                                        Reason
+                                    </Label>
+                                    <Input
+                                        :id="`reason-${claim.id}`"
+                                        v-model="rejectForm.rejection_reason"
+                                        required
+                                        minlength="5"
+                                        placeholder="e.g. We could not verify you manage this venue."
+                                    />
+                                    <InputError
+                                        :message="
+                                            rejectForm.errors.rejection_reason
+                                        "
+                                    />
+                                </div>
+                            </ConfirmDialog>
+                            <InputError :message="page.props.errors.claim" />
+                        </div>
+                    </TableCell>
+                </TableRow>
+            </TableBody>
+        </Table>
 
         <PaginationLinks :links="claims.links" />
     </div>

@@ -4,23 +4,21 @@ import ChangeReviewStatusController from '@/actions/App/Http/Controllers/Admin/C
 import ResolveReviewFlagsController from '@/actions/App/Http/Controllers/Admin/ResolveReviewFlagsController';
 import Heading from '@/components/Heading.vue';
 import ModerationReviewCard from '@/components/ModerationReviewCard.vue';
-import type { ModerationReview } from '@/components/ModerationReviewCard.vue';
 import ReviewOutcomeButtons from '@/components/ReviewOutcomeButtons.vue';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { dashboard as adminDashboard } from '@/routes/admin';
+import type { ModerationLogEntry, ModerationReview } from '@/types';
 
-// Minimal shape for this phase; generated Data types arrive in Phase 7.
-type LogEntry = {
-    id: number;
-    actionLabel: string;
-    actorLabel: string;
-    actorDisplayName: string | null;
-    details: Record<string, unknown>;
-    createdAt: string;
-};
+defineProps<{ review: ModerationReview; log: ModerationLogEntry[] }>();
 
-defineProps<{ review: ModerationReview; log: LogEntry[] }>();
-
-function describeDetails(details: Record<string, unknown>): string {
+function describeDetails(details: ModerationLogEntry['details']): string {
     return Object.entries(details)
         .map(([key, value]) => `${key}: ${String(value)}`)
         .join(', ');
@@ -44,46 +42,53 @@ function describeDetails(details: Record<string, unknown>): string {
             <ModerationReviewCard :item="review" />
         </div>
 
-        <section class="space-y-2">
-            <h2 class="font-semibold">Decide</h2>
+        <section class="space-y-2" aria-labelledby="decide-heading">
+            <h2 id="decide-heading" class="font-semibold">Decide</h2>
             <ReviewOutcomeButtons
                 v-if="review.unresolvedFlagCount > 0"
-                :form="ResolveReviewFlagsController.form(review.review.id)"
+                :action="ResolveReviewFlagsController.url(review.review.id)"
                 publish-label="Dismiss flags, keep live"
                 remove-label="Remove review"
             />
             <ReviewOutcomeButtons
                 v-else
-                :form="ChangeReviewStatusController.form(review.review.id)"
+                :action="ChangeReviewStatusController.url(review.review.id)"
             />
         </section>
 
-        <section class="space-y-2">
-            <h2 class="font-semibold">Moderation history</h2>
+        <section class="space-y-2" aria-labelledby="history-heading">
+            <h2 id="history-heading" class="font-semibold">
+                Moderation history
+            </h2>
             <p v-if="log.length === 0" class="text-muted-foreground text-sm">
                 No moderation actions recorded yet.
             </p>
-            <ol v-else class="space-y-1 text-sm">
-                <li
-                    v-for="entry in log"
-                    :key="entry.id"
-                    class="flex flex-wrap gap-x-2"
-                >
-                    <span class="text-muted-foreground tabular-nums">
-                        {{ new Date(entry.createdAt).toLocaleString() }}
-                    </span>
-                    <span class="font-medium">{{ entry.actionLabel }}</span>
-                    <span class="text-muted-foreground">
-                        by {{ entry.actorDisplayName ?? entry.actorLabel }}
-                    </span>
-                    <span
-                        v-if="Object.keys(entry.details).length > 0"
-                        class="text-muted-foreground"
-                    >
-                        ({{ describeDetails(entry.details) }})
-                    </span>
-                </li>
-            </ol>
+            <Table v-else>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>When</TableHead>
+                        <TableHead>Action</TableHead>
+                        <TableHead>By</TableHead>
+                        <TableHead>Details</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow v-for="entry in log" :key="entry.id">
+                        <TableCell class="whitespace-nowrap tabular-nums">
+                            {{ new Date(entry.createdAt).toLocaleString() }}
+                        </TableCell>
+                        <TableCell class="font-medium">
+                            {{ entry.actionLabel }}
+                        </TableCell>
+                        <TableCell>
+                            {{ entry.actorDisplayName ?? entry.actorLabel }}
+                        </TableCell>
+                        <TableCell class="text-muted-foreground">
+                            {{ describeDetails(entry.details) }}
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </section>
     </div>
 </template>

@@ -4,15 +4,9 @@ import Heading from '@/components/Heading.vue';
 import { index as claimsIndex } from '@/routes/admin/claims';
 import { index as flagsIndex } from '@/routes/admin/flags';
 import { pending as pendingReviews } from '@/routes/admin/reviews';
+import type { ModerationCounts } from '@/types';
 
-// Minimal shape for this phase; generated Data types arrive in Phase 7.
-type Counts = {
-    pendingClaims: number;
-    flaggedReviews: number;
-    pendingReviews: number;
-};
-
-defineProps<{ counts: Counts }>();
+defineProps<{ counts: ModerationCounts }>();
 </script>
 
 <template>

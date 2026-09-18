@@ -1,32 +1,55 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import type { ReviewStatus } from '@/types';
 
 /**
- * Publish / remove buttons that post an `outcome` to the given form binding.
+ * Publish / remove decision for a review. Publishing is immediate; removing
+ * a review is destructive and asks for confirmation first.
  */
-defineProps<{
-    form: { action: string; method: 'post' | 'get' };
-    publishLabel?: string;
-    removeLabel?: string;
-}>();
+const props = withDefaults(
+    defineProps<{
+        action: string;
+        publishLabel?: string;
+        removeLabel?: string;
+    }>(),
+    { publishLabel: 'Publish', removeLabel: 'Remove' },
+);
+
+const form = useForm<{ outcome: ReviewStatus }>({ outcome: 'published' });
+
+function decide(outcome: ReviewStatus): void {
+    form.transform(() => ({ outcome })).post(props.action, {
+        preserveScroll: true,
+    });
+}
 </script>
 
 <template>
     <div class="flex flex-wrap items-start gap-2">
-        <Form v-bind="form" v-slot="{ processing, errors }">
-            <input type="hidden" name="outcome" value="published" />
-            <Button type="submit" :disabled="processing">
-                {{ publishLabel ?? 'Publish' }}
-            </Button>
-            <InputError :message="errors.outcome" />
-        </Form>
-        <Form v-bind="form" v-slot="{ processing }">
-            <input type="hidden" name="outcome" value="removed" />
-            <Button type="submit" variant="destructive" :disabled="processing">
-                {{ removeLabel ?? 'Remove' }}
-            </Button>
-        </Form>
+        <Button
+            type="button"
+            size="sm"
+            :disabled="form.processing"
+            @click="decide('published')"
+        >
+            {{ publishLabel }}
+        </Button>
+        <ConfirmDialog
+            title="Remove this review?"
+            description="The review disappears from the court page and its author is notified. This cannot be undone."
+            confirm-label="Remove review"
+            :processing="form.processing"
+            @confirm="decide('removed')"
+        >
+            <template #trigger>
+                <Button type="button" size="sm" variant="destructive">
+                    {{ removeLabel }}
+                </Button>
+            </template>
+        </ConfirmDialog>
+        <InputError :message="form.errors.outcome" />
     </div>
 </template>

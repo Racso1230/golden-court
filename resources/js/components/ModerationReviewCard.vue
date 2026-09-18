@@ -1,42 +1,25 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import RatingStars from '@/components/RatingStars.vue';
+import { Badge } from '@/components/ui/badge';
 import { show as adminReviewShow } from '@/routes/admin/reviews';
 import { show as courtShow } from '@/routes/courts';
-
-// Minimal shape for this phase; generated Data types arrive in Phase 7.
-export type ModerationFlag = {
-    id: number;
-    reasonLabel: string;
-    details: string | null;
-    reporterDisplayName: string;
-    createdAt: string;
-    resolvedAt: string | null;
-};
-
-export type ModerationReview = {
-    review: {
-        id: number;
-        overall: number;
-        body: string;
-        authorDisplayName: string;
-        createdAt: string;
-    };
-    statusLabel: string;
-    authorEmail: string;
-    courtName: string;
-    courtSlug: string;
-    venueName: string;
-    venueSlug: string;
-    flags: ModerationFlag[];
-    unresolvedFlagCount: number;
-};
+import type { ModerationReview } from '@/types';
 
 defineProps<{ item: ModerationReview; showDetailLink?: boolean }>();
+
+function formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+}
 </script>
 
 <template>
     <div class="space-y-2">
-        <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
             <Link
                 :href="
                     courtShow({ venue: item.venueSlug, court: item.courtSlug })
@@ -45,12 +28,16 @@ defineProps<{ item: ModerationReview; showDetailLink?: boolean }>();
             >
                 {{ item.venueName }} · {{ item.courtName }}
             </Link>
-            <p class="text-muted-foreground text-xs">
-                {{ item.statusLabel }} · {{ item.review.overall.toFixed(1) }} ·
-                by {{ item.review.authorDisplayName }} ({{ item.authorEmail }})
-                ·
-                {{ new Date(item.review.createdAt).toLocaleDateString() }}
-            </p>
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+                <Badge variant="secondary">{{ item.statusLabel }}</Badge>
+                <RatingStars :value="item.review.overall" size="sm" />
+                <span class="text-muted-foreground">
+                    by {{ item.review.authorDisplayName }} ({{
+                        item.authorEmail
+                    }}) ·
+                    {{ formatDate(item.review.createdAt) }}
+                </span>
+            </div>
         </div>
         <p class="text-sm whitespace-pre-line">{{ item.review.body }}</p>
         <ul v-if="item.flags.length > 0" class="space-y-1 text-sm">
