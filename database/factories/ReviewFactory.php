@@ -29,7 +29,8 @@ class ReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            // Reviews are written by players; a random role here would make policy tests flaky.
+            'user_id' => User::factory()->player(),
             'court_id' => Court::factory(),
             'glass_rating' => $this->rating(),
             'lighting_rating' => $this->rating(),
