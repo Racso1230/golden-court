@@ -28,6 +28,8 @@ class CreateNewUser implements CreatesNewUsers
 
         return User::create([
             'name' => $input['name'],
+            // New accounts start with their account name as their public name.
+            'display_name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
