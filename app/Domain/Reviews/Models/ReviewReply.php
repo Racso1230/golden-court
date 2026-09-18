@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $body
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
+ * @property-read Review $review
+ * @property-read User $user
  */
 #[Fillable(['review_id', 'user_id', 'body'])]
 #[UseFactory(ReviewReplyFactory::class)]

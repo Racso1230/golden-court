@@ -39,6 +39,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property CarbonImmutable|null $deleted_at
+ * @property-read User $user
+ * @property-read Court $court
  */
 #[Fillable([
     'user_id',
@@ -88,6 +90,11 @@ class Review extends Model
     public function isPublished(): bool
     {
         return $this->status->isVisible();
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->user_id === $user->id;
     }
 
     /**

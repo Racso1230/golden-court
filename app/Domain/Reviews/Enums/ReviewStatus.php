@@ -28,4 +28,24 @@ enum ReviewStatus: string
     {
         return $this === self::Published;
     }
+
+    /**
+     * The moderation state machine: which statuses this one may move to.
+     *
+     * @return list<self>
+     */
+    public function allowedTransitions(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Published, self::Removed],
+            self::Published => [self::Flagged],
+            self::Flagged => [self::Published, self::Removed],
+            self::Removed => [],
+        };
+    }
+
+    public function canTransitionTo(self $to): bool
+    {
+        return in_array($to, $this->allowedTransitions(), true);
+    }
 }
