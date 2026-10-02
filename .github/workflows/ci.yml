@@ -114,4 +114,8 @@ jobs:
         run: $RUNNER_TEMP/gc_run.sh npm run type-check
 
       - name: Vitest
+        # Vitest boots Vite in serve mode; laravel-vite-plugin refuses that when
+        # CI is set unless told this is not a forgotten dev server.
+        env:
+          LARAVEL_BYPASS_ENV_CHECK: 1
         run: $RUNNER_TEMP/gc_run.sh npm run test
