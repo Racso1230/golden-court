@@ -5,6 +5,7 @@ import StoreReviewController from '@/actions/App/Http/Controllers/Reviews/StoreR
 import UpdateReviewController from '@/actions/App/Http/Controllers/Reviews/UpdateReviewController';
 import InputError from '@/components/InputError.vue';
 import RatingInput from '@/components/RatingInput.vue';
+import SectionCard from '@/components/SectionCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -78,55 +79,81 @@ function submit(): void {
 </script>
 
 <template>
-    <form class="space-y-8" @submit.prevent="submit">
+    <form class="space-y-6" @submit.prevent="submit">
         <InputError :message="form.errors.court_id" />
 
-        <RatingInput
-            v-for="dimension in dimensions"
-            :key="dimension.key"
-            v-model="form[dimension.key]"
-            :label="dimension.label"
-            :hint="dimension.hint"
-            :error="form.errors[dimension.key]"
-        />
+        <SectionCard
+            title="Rate the court"
+            description="Score each part from 1 (poor) to 5 (excellent)."
+        >
+            <div class="grid gap-6 sm:grid-cols-2">
+                <RatingInput
+                    v-for="dimension in dimensions"
+                    :key="dimension.key"
+                    v-model="form[dimension.key]"
+                    :label="dimension.label"
+                    :hint="dimension.hint"
+                    :error="form.errors[dimension.key]"
+                />
+            </div>
+        </SectionCard>
 
-        <div class="grid gap-1.5">
-            <Label for="body">Your review</Label>
-            <Textarea
-                id="body"
-                v-model="form.body"
-                required
-                minlength="20"
-                maxlength="2000"
-                rows="6"
-                placeholder="At least 20 characters. What was it like to play here?"
-                :aria-invalid="form.errors.body ? 'true' : undefined"
-            />
-            <p class="text-muted-foreground text-xs tabular-nums">
-                {{ form.body.length }} / 2000
-            </p>
-            <InputError :message="form.errors.body" />
-        </div>
+        <SectionCard
+            title="Your review"
+            description="What was it like to play here? Other players will read this."
+        >
+            <div class="space-y-5">
+                <div class="grid gap-1.5">
+                    <Label for="body">Review</Label>
+                    <Textarea
+                        id="body"
+                        v-model="form.body"
+                        required
+                        minlength="20"
+                        maxlength="2000"
+                        rows="7"
+                        placeholder="At least 20 characters. What was it like to play here?"
+                        :aria-invalid="form.errors.body ? 'true' : undefined"
+                    />
+                    <p
+                        class="text-xs tabular-nums"
+                        :class="
+                            form.body.length > 0 && form.body.length < 20
+                                ? 'text-gold-700'
+                                : 'text-muted-foreground'
+                        "
+                    >
+                        {{ form.body.length }} / 2000
+                        <template
+                            v-if="form.body.length > 0 && form.body.length < 20"
+                        >
+                            · {{ 20 - form.body.length }} more to go
+                        </template>
+                    </p>
+                    <InputError :message="form.errors.body" />
+                </div>
 
-        <div class="grid gap-1.5">
-            <Label for="played_on">When did you play? (optional)</Label>
-            <Input
-                id="played_on"
-                v-model="form.played_on"
-                type="date"
-                :max="today"
-                class="w-fit"
-            />
-            <InputError :message="form.errors.played_on" />
-        </div>
+                <div class="grid gap-1.5">
+                    <Label for="played_on">When did you play? (optional)</Label>
+                    <Input
+                        id="played_on"
+                        v-model="form.played_on"
+                        type="date"
+                        :max="today"
+                        class="w-fit"
+                    />
+                    <InputError :message="form.errors.played_on" />
+                </div>
+            </div>
+        </SectionCard>
 
         <div class="flex items-center gap-4">
-            <Button type="submit" :disabled="form.processing">
+            <Button type="submit" size="lg" :disabled="form.processing">
                 {{ review ? 'Save changes' : 'Submit review' }}
             </Button>
             <p
                 v-if="form.recentlySuccessful"
-                class="text-muted-foreground text-sm"
+                class="text-success text-sm"
                 role="status"
             >
                 Saved.

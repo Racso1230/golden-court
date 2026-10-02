@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Link, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import DestroyReviewController from '@/actions/App/Http/Controllers/Reviews/DestroyReviewController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import ReviewForm from '@/components/ReviewForm.vue';
+import SectionCard from '@/components/SectionCard.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -14,6 +15,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { show as courtShow } from '@/routes/courts';
+import { index as venuesIndex, show as venueShow } from '@/routes/venues';
 import type { CourtSummary, Review } from '@/types';
 
 const props = defineProps<{
@@ -31,30 +33,30 @@ function destroy(): void {
 </script>
 
 <template>
-    <div class="mx-auto flex w-full max-w-2xl flex-col space-y-6 p-4">
-        <Link
-            :href="courtShow({ venue: venueSlug, court: court.slug })"
-            class="text-sm hover:underline"
-        >
-            ← {{ court.name }} at {{ venueName }}
-        </Link>
-
-        <Heading
+    <div class="mx-auto max-w-3xl space-y-6">
+        <PageHeader
             :title="`Edit your review of ${court.name}`"
             :description="venueName"
+            :breadcrumbs="[
+                { title: 'Venues', href: venuesIndex() },
+                { title: venueName, href: venueShow(venueSlug) },
+                {
+                    title: court.name,
+                    href: courtShow({ venue: venueSlug, court: court.slug }),
+                },
+            ]"
         />
 
         <ReviewForm :court-id="court.id" :review="review" />
 
-        <section class="border-destructive/40 rounded-xl border p-4">
-            <h2 class="font-semibold">Delete this review</h2>
-            <p class="text-muted-foreground mt-1 text-sm">
-                Removes your review from {{ court.name }}. You will not be able
-                to review this court again.
-            </p>
+        <SectionCard
+            title="Delete this review"
+            description="Removes your review. You will not be able to review this court again."
+            class="border-destructive/30"
+        >
             <Dialog>
                 <DialogTrigger as-child>
-                    <Button type="button" variant="destructive" class="mt-3">
+                    <Button type="button" variant="destructive">
                         Delete review
                     </Button>
                 </DialogTrigger>
@@ -78,6 +80,6 @@ function destroy(): void {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </section>
+        </SectionCard>
     </div>
 </template>

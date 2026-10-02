@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import ReviewForm from '@/components/ReviewForm.vue';
 import { show as courtShow } from '@/routes/courts';
+import { index as venuesIndex, show as venueShow } from '@/routes/venues';
 import type { CourtSummary } from '@/types';
 
 defineProps<{
@@ -13,17 +13,18 @@ defineProps<{
 </script>
 
 <template>
-    <div class="mx-auto flex w-full max-w-2xl flex-col space-y-6 p-4">
-        <Link
-            :href="courtShow({ venue: venueSlug, court: court.slug })"
-            class="text-sm hover:underline"
-        >
-            ← {{ court.name }} at {{ venueName }}
-        </Link>
-
-        <Heading
+    <div class="mx-auto max-w-3xl">
+        <PageHeader
             :title="`Review ${court.name}`"
-            :description="`${venueName} · ${court.courtTypeLabel} · ${court.wallTypeLabel} · ${court.surfaceLabel}`"
+            :description="`${venueName} · ${court.courtTypeLabel} · ${court.wallTypeLabel} walls · ${court.surfaceLabel}`"
+            :breadcrumbs="[
+                { title: 'Venues', href: venuesIndex() },
+                { title: venueName, href: venueShow(venueSlug) },
+                {
+                    title: court.name,
+                    href: courtShow({ venue: venueSlug, court: court.slug }),
+                },
+            ]"
         />
 
         <ReviewForm :court-id="court.id" />
