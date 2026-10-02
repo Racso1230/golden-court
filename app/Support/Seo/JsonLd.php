@@ -28,6 +28,25 @@ final class JsonLd
     }
 
     /**
+     * The rating shown on the page. The site's aggregate is a Bayesian average
+     * by default; search engines require the marked-up value to match the
+     * visible one, so that is what is emitted, with the true review count.
+     *
+     * @return array<string, mixed>
+     */
+    public static function aggregateRating(float $value, int $reviewCount): array
+    {
+        return [
+            '@type' => 'AggregateRating',
+            'ratingValue' => round($value, 1),
+            'bestRating' => 5,
+            'worstRating' => 1,
+            'ratingCount' => $reviewCount,
+            'reviewCount' => $reviewCount,
+        ];
+    }
+
+    /**
      * @param  list<array{name: string, url: string}>  $crumbs
      * @return array<string, mixed>
      */
