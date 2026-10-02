@@ -10,6 +10,16 @@
   and the site search box.
 - `sitemap.xml` and a dynamic `robots.txt`.
 - Dark mode and the appearance setting removed; the site is white only.
+- White and gold design tokens, Instrument Serif display headings, the
+  Golden Court mark (a gold padel ball with a star), favicons, web manifest
+  and Open Graph card.
+- One top-navigation layout for every page, with a mobile menu, section tabs
+  for the account and admin areas and a footer; new auth and settings
+  layouts. The starter sidebar shell is gone.
+- An account dashboard with review, vote and claim counts, reviews awaiting
+  an owner's reply, notifications and quick links.
+- Owner replies are labelled "Response from the owner"; new players see when
+  they may review.
 
 ## v0.1.0 — 2026-09-18
 
