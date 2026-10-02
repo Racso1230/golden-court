@@ -112,7 +112,7 @@ function tabIndexFor(value: Rating): number {
                 class="focus-visible:ring-ring/50 flex size-10 items-center justify-center rounded-md border text-lg transition-colors outline-none focus-visible:ring-[3px] disabled:opacity-50"
                 :class="
                     model !== null && value <= model
-                        ? 'border-amber-500 bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200'
+                        ? 'border-amber-500 bg-amber-100 text-amber-700'
                         : 'text-muted-foreground hover:bg-accent'
                 "
                 @click="select(value)"
