@@ -1,51 +1,69 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import { Building2, CircleCheck, Clock, Flag } from '@lucide/vue';
+import { computed } from 'vue';
+import PageHeader from '@/components/PageHeader.vue';
+import StatCard from '@/components/StatCard.vue';
 import { index as claimsIndex } from '@/routes/admin/claims';
 import { index as flagsIndex } from '@/routes/admin/flags';
 import { pending as pendingReviews } from '@/routes/admin/reviews';
 import type { ModerationCounts } from '@/types';
 
-defineProps<{ counts: ModerationCounts }>();
+const props = defineProps<{ counts: ModerationCounts }>();
+
+const allClear = computed(
+    () =>
+        props.counts.pendingClaims === 0 &&
+        props.counts.flaggedReviews === 0 &&
+        props.counts.pendingReviews === 0,
+);
 </script>
 
 <template>
-    <div class="flex flex-col space-y-6 p-4">
-        <Heading
-            title="Moderation"
-            description="What needs a decision right now"
-        />
+    <PageHeader
+        eyebrow="Admin"
+        title="Moderation"
+        description="What needs a decision right now."
+    />
 
-        <div class="grid gap-4 sm:grid-cols-3">
-            <Link
+    <ul class="grid gap-4 sm:grid-cols-3">
+        <li>
+            <StatCard
+                label="Pending claims"
+                :value="counts.pendingClaims"
+                hint="Venue ownership requests"
                 :href="claimsIndex()"
-                class="hover:bg-accent rounded-xl border p-4"
             >
-                <p class="text-muted-foreground text-sm">Pending claims</p>
-                <p class="text-3xl font-semibold tabular-nums">
-                    {{ counts.pendingClaims }}
-                </p>
-            </Link>
-            <Link
+                <template #icon><Building2 /></template>
+            </StatCard>
+        </li>
+        <li>
+            <StatCard
+                label="Reviews with open flags"
+                :value="counts.flaggedReviews"
+                hint="Reported by players"
                 :href="flagsIndex()"
-                class="hover:bg-accent rounded-xl border p-4"
             >
-                <p class="text-muted-foreground text-sm">
-                    Reviews with open flags
-                </p>
-                <p class="text-3xl font-semibold tabular-nums">
-                    {{ counts.flaggedReviews }}
-                </p>
-            </Link>
-            <Link
+                <template #icon><Flag /></template>
+            </StatCard>
+        </li>
+        <li>
+            <StatCard
+                label="Pending reviews"
+                :value="counts.pendingReviews"
+                hint="Not yet published"
                 :href="pendingReviews()"
-                class="hover:bg-accent rounded-xl border p-4"
             >
-                <p class="text-muted-foreground text-sm">Pending reviews</p>
-                <p class="text-3xl font-semibold tabular-nums">
-                    {{ counts.pendingReviews }}
-                </p>
-            </Link>
-        </div>
-    </div>
+                <template #icon><Clock /></template>
+            </StatCard>
+        </li>
+    </ul>
+
+    <p
+        v-if="allClear"
+        class="text-success mt-6 flex items-center gap-2 text-sm"
+        role="status"
+    >
+        <CircleCheck class="size-4" aria-hidden="true" />
+        Everything is clear. Nice work.
+    </p>
 </template>

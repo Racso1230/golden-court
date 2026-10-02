@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import ChangeReviewStatusController from '@/actions/App/Http/Controllers/Admin/ChangeReviewStatusController';
-import Heading from '@/components/Heading.vue';
+import { ShieldCheck } from '@lucide/vue';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import ModerationReviewCard from '@/components/ModerationReviewCard.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
 import ReviewOutcomeButtons from '@/components/ReviewOutcomeButtons.vue';
@@ -18,38 +20,57 @@ defineProps<{ reviews: Paginated<ModerationReview> }>();
 </script>
 
 <template>
-    <div class="flex flex-col space-y-6 p-4">
-        <Heading
+    <div class="space-y-6">
+        <PageHeader
+            eyebrow="Admin"
             title="Pending reviews"
             :description="`${reviews.total} waiting to go live`"
         />
 
-        <p v-if="reviews.data.length === 0" class="text-muted-foreground">
-            Nothing to review.
-        </p>
+        <EmptyState
+            v-if="reviews.data.length === 0"
+            title="Nothing to review"
+            description="The queue is clear. New items appear here as players submit them."
+        >
+            <template #icon><ShieldCheck /></template>
+        </EmptyState>
 
-        <Table v-else>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Review</TableHead>
-                    <TableHead><span class="sr-only">Actions</span></TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                <TableRow v-for="item in reviews.data" :key="item.review.id">
-                    <TableCell class="max-w-2xl">
-                        <ModerationReviewCard :item="item" show-detail-link />
-                    </TableCell>
-                    <TableCell>
-                        <ReviewOutcomeButtons
-                            :action="
-                                ChangeReviewStatusController.url(item.review.id)
-                            "
-                        />
-                    </TableCell>
-                </TableRow>
-            </TableBody>
-        </Table>
+        <div v-else class="bg-card overflow-hidden rounded-xl border shadow-xs">
+            <Table>
+                <TableHeader class="bg-muted/50">
+                    <TableRow>
+                        <TableHead class="px-5">Review</TableHead>
+                        <TableHead
+                            ><span class="sr-only">Actions</span></TableHead
+                        >
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow
+                        v-for="item in reviews.data"
+                        :key="item.review.id"
+                    >
+                        <TableCell
+                            class="max-w-2xl px-5 py-4 whitespace-normal"
+                        >
+                            <ModerationReviewCard
+                                :item="item"
+                                show-detail-link
+                            />
+                        </TableCell>
+                        <TableCell>
+                            <ReviewOutcomeButtons
+                                :action="
+                                    ChangeReviewStatusController.url(
+                                        item.review.id,
+                                    )
+                                "
+                            />
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>
 
         <PaginationLinks :links="reviews.links" />
     </div>

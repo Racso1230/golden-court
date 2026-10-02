@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import ChangeReviewStatusController from '@/actions/App/Http/Controllers/Admin/ChangeReviewStatusController';
 import ResolveReviewFlagsController from '@/actions/App/Http/Controllers/Admin/ResolveReviewFlagsController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SectionCard from '@/components/SectionCard.vue';
 import ModerationReviewCard from '@/components/ModerationReviewCard.vue';
 import ReviewOutcomeButtons from '@/components/ReviewOutcomeButtons.vue';
 import {
@@ -27,22 +27,21 @@ function describeDetails(details: ModerationLogEntry['details']): string {
 </script>
 
 <template>
-    <div class="flex flex-col space-y-6 p-4">
-        <Link :href="adminDashboard()" class="text-sm hover:underline">
-            ← Moderation
-        </Link>
-
-        <Heading
+    <div class="space-y-6">
+        <PageHeader
+            :breadcrumbs="[{ title: 'Moderation', href: adminDashboard() }]"
             :title="`Review #${review.review.id}`"
             :description="`Currently ${review.statusLabel.toLowerCase()}`"
         />
 
-        <div class="rounded-xl border p-4">
+        <SectionCard as="div">
             <ModerationReviewCard :item="review" />
-        </div>
+        </SectionCard>
 
-        <section class="space-y-2" aria-labelledby="decide-heading">
-            <h2 id="decide-heading" class="font-semibold">Decide</h2>
+        <SectionCard
+            title="Decide"
+            description="Publishing keeps the review live; removing takes it off the site."
+        >
             <ReviewOutcomeButtons
                 v-if="review.unresolvedFlagCount > 0"
                 :action="ResolveReviewFlagsController.url(review.review.id)"
@@ -53,12 +52,9 @@ function describeDetails(details: ModerationLogEntry['details']): string {
                 v-else
                 :action="ChangeReviewStatusController.url(review.review.id)"
             />
-        </section>
+        </SectionCard>
 
-        <section class="space-y-2" aria-labelledby="history-heading">
-            <h2 id="history-heading" class="font-semibold">
-                Moderation history
-            </h2>
+        <SectionCard title="Moderation history">
             <p v-if="log.length === 0" class="text-muted-foreground text-sm">
                 No moderation actions recorded yet.
             </p>
@@ -88,6 +84,6 @@ function describeDetails(details: ModerationLogEntry['details']): string {
                     </TableRow>
                 </TableBody>
             </Table>
-        </section>
+        </SectionCard>
     </div>
 </template>

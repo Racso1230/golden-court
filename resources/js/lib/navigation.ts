@@ -83,7 +83,7 @@ export function adminTabs(): SectionTab[] {
         {
             title: 'Pending reviews',
             href: adminPendingReviews(),
-            isActive: (component) => component.startsWith('Admin/Reviews/'),
+            isActive: (component) => component === 'Admin/Reviews/Pending',
         },
     ];
 }
