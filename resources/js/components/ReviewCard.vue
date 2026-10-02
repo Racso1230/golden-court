@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useInitials } from '@/composables/useInitials';
 import { formatDate } from '@/lib/dates';
 import { edit as reviewEdit } from '@/routes/reviews';
 import type { FlagReviewFormData, Option, Review } from '@/types';
@@ -42,6 +43,8 @@ const props = withDefaults(
         venueName: undefined,
     },
 );
+
+const { getInitials } = useInitials();
 
 const dimensions = [
     { key: 'glass', label: 'Glass' },
@@ -107,13 +110,20 @@ function submitFlag(): void {
 </script>
 
 <template>
-    <article class="rounded-xl border p-4">
-        <header class="flex flex-wrap items-baseline justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="font-semibold">{{
-                    review.authorDisplayName
-                }}</span>
-                <RatingStars :value="review.overall" size="sm" />
+    <article class="bg-card rounded-xl border p-5 shadow-xs">
+        <header class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span
+                    class="bg-gold-100 text-gold-900 flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                    aria-hidden="true"
+                    >{{ getInitials(review.authorDisplayName) }}</span
+                >
+                <div>
+                    <p class="text-sm font-semibold">
+                        {{ review.authorDisplayName }}
+                    </p>
+                    <RatingStars :value="review.overall" size="sm" />
+                </div>
             </div>
             <p class="text-muted-foreground text-xs">
                 <time :datetime="review.createdAt">
@@ -125,16 +135,22 @@ function submitFlag(): void {
             </p>
         </header>
 
-        <dl class="text-muted-foreground mt-2 flex flex-wrap gap-x-4 text-xs">
-            <div v-for="dimension in dimensions" :key="dimension.key">
-                <dt class="inline">{{ dimension.label }}</dt>
-                <dd class="inline font-semibold tabular-nums">
+        <dl class="mt-3 flex flex-wrap gap-1.5 text-xs">
+            <div
+                v-for="dimension in dimensions"
+                :key="dimension.key"
+                class="bg-secondary flex gap-1 rounded-md px-2 py-0.5"
+            >
+                <dt class="text-muted-foreground">{{ dimension.label }}</dt>
+                <dd class="font-semibold tabular-nums">
                     {{ review.scores[dimension.key] }}
                 </dd>
             </div>
         </dl>
 
-        <p class="mt-3 whitespace-pre-line">{{ review.body }}</p>
+        <p class="mt-3 text-base leading-relaxed whitespace-pre-line">
+            {{ review.body }}
+        </p>
 
         <footer class="mt-3 flex flex-wrap items-center gap-2 text-xs">
             <Button
@@ -212,7 +228,7 @@ function submitFlag(): void {
 
         <blockquote
             v-if="review.reply"
-            class="bg-muted mt-3 rounded-md p-3 text-sm"
+            class="border-gold-400 bg-gold-50/60 mt-4 rounded-lg border-l-2 p-4 text-sm"
         >
             <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <template v-if="review.reply.fromOwner">
