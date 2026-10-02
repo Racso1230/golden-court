@@ -22,6 +22,7 @@ This is a portfolio project intended to demonstrate mid-level engineering judgem
 | 6 | `06-trust-and-ownership.md` | Flags, helpful votes, venue claims, owner replies, admin area. |
 | 7 | `07-frontend.md` | Inertia pages in Vue/TS with generated types. |
 | 8 | `08-hardening-and-docs.md` | Rate limits, Bayesian aggregator, ARCHITECTURE.md, README. |
+| 9 | `09-redesign.md` | White and gold redesign, single top-nav layout, Inertia SSR, SEO (head tags, JSON-LD, sitemap, robots). |
 
 Phases 4–6 are backend-first with minimal Inertia pages so the flows are exercisable. Phase 7 builds the real UI on top. If a phase is too large for one session, split it at the numbered task boundaries — each task is self-contained.
 
