@@ -10,6 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatDate } from '@/lib/dates';
 import { index as venuesIndex, show as venueShow } from '@/routes/venues';
 import type { ClaimStatus, VenueClaim } from '@/types';
 
@@ -26,14 +27,6 @@ function statusVariant(
         case 'rejected':
             return 'destructive';
     }
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
 }
 </script>
 

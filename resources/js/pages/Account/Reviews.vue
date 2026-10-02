@@ -5,6 +5,7 @@ import PaginationLinks from '@/components/PaginationLinks.vue';
 import RatingStars from '@/components/RatingStars.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/dates';
 import { show as courtShow } from '@/routes/courts';
 import { edit as reviewEdit } from '@/routes/reviews';
 import { index as venuesIndex } from '@/routes/venues';
@@ -27,14 +28,6 @@ function statusVariant(
         case 'removed':
             return 'destructive';
     }
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
 }
 </script>
 

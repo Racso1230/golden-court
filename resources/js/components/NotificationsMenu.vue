@@ -13,6 +13,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { formatDate } from '@/lib/dates';
 
 const page = usePage();
 const notifications = computed(() => page.props.notifications);
@@ -31,13 +32,6 @@ function markAllRead(): void {
         {},
         { preserveScroll: true },
     );
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-    });
 }
 </script>
 
@@ -109,7 +103,9 @@ function formatDate(value: string): string {
                     <span class="flex-1 text-sm">
                         {{ item.message }}
                         <span class="text-muted-foreground block text-xs">
-                            {{ formatDate(item.createdAt) }}
+                            {{
+                                formatDate(item.createdAt, { withYear: false })
+                            }}
                             <template v-if="item.readAt === null">
                                 · unread</template
                             >

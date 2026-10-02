@@ -13,6 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatDateTime } from '@/lib/dates';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import type { ModerationLogEntry, ModerationReview } from '@/types';
 
@@ -75,7 +76,7 @@ function describeDetails(details: ModerationLogEntry['details']): string {
                 <TableBody>
                     <TableRow v-for="entry in log" :key="entry.id">
                         <TableCell class="whitespace-nowrap tabular-nums">
-                            {{ new Date(entry.createdAt).toLocaleString() }}
+                            {{ formatDateTime(entry.createdAt) }}
                         </TableCell>
                         <TableCell class="font-medium">
                             {{ entry.actionLabel }}

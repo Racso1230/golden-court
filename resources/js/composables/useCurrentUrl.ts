@@ -22,18 +22,20 @@ export type UseCurrentUrlReturn = {
     ) => T | F;
 };
 
-const page = usePage();
-const currentUrlReactive = computed(
-    () =>
-        new URL(
-            page.url,
-            typeof window !== 'undefined'
-                ? window.location.origin
-                : 'http://localhost',
-        ).pathname,
-);
-
 export function useCurrentUrl(): UseCurrentUrlReturn {
+    // Resolved inside the composable so importing this module never touches
+    // Inertia's page state at module-evaluation time (important for SSR).
+    const page = usePage();
+    const currentUrlReactive = computed(
+        () =>
+            new URL(
+                page.url,
+                typeof window !== 'undefined'
+                    ? window.location.origin
+                    : 'http://localhost',
+            ).pathname,
+    );
+
     function isCurrentUrl(
         urlToCheck: NonNullable<InertiaLinkProps['href']>,
         currentUrl?: string,
@@ -65,11 +67,11 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         return isCurrentUrl(urlToCheck, currentUrl, true);
     }
 
-    function whenCurrentUrl(
+    function whenCurrentUrl<T, F = null>(
         urlToCheck: NonNullable<InertiaLinkProps['href']>,
-        ifTrue: any,
-        ifFalse: any = null,
-    ) {
+        ifTrue: T,
+        ifFalse: F = null as F,
+    ): T | F {
         return isCurrentUrl(urlToCheck) ? ifTrue : ifFalse;
     }
 

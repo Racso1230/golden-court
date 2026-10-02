@@ -17,6 +17,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatDate } from '@/lib/dates';
 import { show as venueShow } from '@/routes/venues';
 import type { Paginated, VenueClaim } from '@/types';
 
@@ -40,14 +41,6 @@ function reject(claim: VenueClaim): void {
     rejectForm.post(RejectVenueClaimController.url(claim.id), {
         preserveScroll: true,
         onSuccess: () => rejectForm.reset(),
-    });
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
     });
 }
 </script>

@@ -19,6 +19,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { formatDate } from '@/lib/dates';
 import { edit as reviewEdit } from '@/routes/reviews';
 import type { FlagReviewFormData, Option, Review } from '@/types';
 
@@ -92,14 +93,6 @@ function submitFlag(): void {
             flagOpen.value = false;
             flagForm.reset();
         },
-    });
-}
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
     });
 }
 </script>

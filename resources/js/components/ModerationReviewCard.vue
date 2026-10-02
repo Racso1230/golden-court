@@ -2,19 +2,12 @@
 import { Link } from '@inertiajs/vue3';
 import RatingStars from '@/components/RatingStars.vue';
 import { Badge } from '@/components/ui/badge';
+import { formatDate } from '@/lib/dates';
 import { show as adminReviewShow } from '@/routes/admin/reviews';
 import { show as courtShow } from '@/routes/courts';
 import type { ModerationReview } from '@/types';
 
 defineProps<{ item: ModerationReview; showDetailLink?: boolean }>();
-
-function formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
 </script>
 
 <template>

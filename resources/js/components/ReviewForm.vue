@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import { onMounted, ref } from 'vue';
 import StoreReviewController from '@/actions/App/Http/Controllers/Reviews/StoreReviewController';
 import UpdateReviewController from '@/actions/App/Http/Controllers/Reviews/UpdateReviewController';
 import InputError from '@/components/InputError.vue';
@@ -59,7 +60,12 @@ const form = useForm<ReviewFormData>({
     played_on: props.review?.playedOn?.slice(0, 10) ?? '',
 });
 
-const today = new Date().toISOString().slice(0, 10);
+const today = ref('');
+
+onMounted(() => {
+    // Browser only, so the server never bakes its own clock into the markup.
+    today.value = new Date().toISOString().slice(0, 10);
+});
 
 function submit(): void {
     if (props.review) {
