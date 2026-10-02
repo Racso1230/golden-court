@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'redesign/**'
   pull_request:
 
 permissions:
@@ -79,3 +80,6 @@ jobs:
 
       - name: Frontend checks (lint, format, build, types, vue-tsc, vitest)
         run: npm run check
+
+      - name: SSR bundle was built
+        run: test -f bootstrap/ssr/app.js

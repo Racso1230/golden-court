@@ -4,14 +4,14 @@
     "type": "module",
     "scripts": {
         "build": "vp build",
-        "build:ssr": "vp build && vp build --ssr",
+        "build:ssr": "vp build --ssr",
         "dev": "vp dev",
         "lint": "vp lint",
         "lint:fix": "vp lint --fix",
         "format": "vp fmt",
         "format:check": "vp fmt --check",
         "type-check": "vue-tsc --noEmit",
-        "check": "npm run lint && npm run format:check && npm run build && npm run types && npm run type-check && npm run test",
+        "check": "npm run lint && npm run format:check && npm run build && npm run build:ssr && npm run types && npm run type-check && npm run test",
         "types": "php artisan typescript:transform",
         "test": "vp test run"
     },
