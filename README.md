@@ -113,8 +113,9 @@ on the server by Inertia; everything behind a login renders in the browser.
   (a Node process on port 13714). Check it with `php artisan inertia:check-ssr`
   and stop it with `php artisan inertia:stop-ssr`. Production needs Node.
 - If the renderer is down, pages fall back to client rendering unless
-  `INERTIA_SSR_THROW_ON_ERROR=true` (the `.env.example` default, so local
-  SSR bugs fail loudly). Pest always runs with SSR disabled.
+  `INERTIA_SSR_THROW_ON_ERROR=true`, which is worth setting while debugging
+  SSR so render failures surface as errors. Pest always runs with SSR
+  disabled.
 
 Head tags (title, description, canonical, robots, Open Graph, Twitter and
 JSON-LD) are built in PHP under `app/Support/Seo` and the page builders in
