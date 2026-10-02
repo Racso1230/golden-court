@@ -27,7 +27,7 @@ carries the Golden Court badge.
 
 ## Stack
 
-PHP 8.4 · Laravel 13 · PostgreSQL 17 · Inertia 2 · Vue 3 · TypeScript ·
+PHP 8.4 · Laravel 13 · PostgreSQL 17 · Inertia 3 (SSR) · Vue 3 · TypeScript ·
 Tailwind CSS 4 · shadcn-vue · spatie/laravel-data ·
 spatie/laravel-typescript-transformer · Pest · Larastan · Pint · Vitest ·
 vite-plus (oxlint, oxfmt)
@@ -94,12 +94,34 @@ Both must pass before a change is done. CI runs them against a
 
 ```sh
 composer check   # Pint, PHPStan level 8, Pest against PostgreSQL
-npm run check    # lint, format, build, generated types, vue-tsc, Vitest
+npm run check    # lint, format, build, SSR build, generated types, vue-tsc, Vitest
 ```
 
 Individual steps: `composer lint`, `composer analyse`, `composer test`,
-`npm run lint`, `npm run format:check`, `npm run build`, `npm run types`,
-`npm run type-check`, `npm run test`.
+`npm run lint`, `npm run format:check`, `npm run build`, `npm run build:ssr`,
+`npm run types`, `npm run type-check`, `npm run test`.
+
+## Server-side rendering and SEO
+
+The public pages (home, venue listing, venue and court pages) are rendered
+on the server by Inertia; everything behind a login renders in the browser.
+
+- **Development**: with `npm run dev` running, Laravel posts each public page
+  to the Vite dev server, which renders it. Nothing else to start.
+- **Production-like**: stop the dev server, then
+  `npm run build && npm run build:ssr` and `php artisan inertia:start-ssr`
+  (a Node process on port 13714). Check it with `php artisan inertia:check-ssr`
+  and stop it with `php artisan inertia:stop-ssr`. Production needs Node.
+- If the renderer is down, pages fall back to client rendering unless
+  `INERTIA_SSR_THROW_ON_ERROR=true` (the `.env.example` default, so local
+  SSR bugs fail loudly). Pest always runs with SSR disabled.
+
+Head tags (title, description, canonical, robots, Open Graph, Twitter and
+JSON-LD) are built in PHP under `app/Support/Seo` and the page builders in
+each domain's `Actions`, so they are identical with and without SSR and are
+asserted in Pest. `/sitemap.xml` and `/robots.txt` are served by the app;
+absolute URLs come from `APP_URL`, which should be `http://golden-court.test`
+locally.
 
 The frontend commands shell out to `php artisan` (Wayfinder routes and the
 TypeScript transformer), so PHP 8.4 must be on your `PATH`.

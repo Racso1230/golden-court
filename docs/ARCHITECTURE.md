@@ -253,7 +253,43 @@ Each layer's tests prove something specific:
   behaviour, `RatingStars`, `ScoreBadge`, the `useVenueSearch` composable,
   and axe-core checks on the shared components.
 
-## 10. Known limitations and scale
+## 10. Server-side rendering and SEO
+
+Only the four public page types are rendered on the server: they are the
+whole indexable surface. `HandleInertiaRequests::$withoutSsr` is a denylist
+of everything behind a login (and the auth pages), so a new public route is
+server-rendered by default and WebAuthn and two-factor code stay out of the
+renderer's failure domain. `config/inertia.php` is environment-driven;
+`phpunit.xml` disables SSR so tests never contact a gateway, and
+`SsrGatewayTest` exercises the gateway with a faked HTTP client. A Vitest
+suite in a Node environment imports every page, layout, component and
+composable and renders the public pages through Inertia's server renderer,
+so browser-only code in `setup` fails in CI. Dates are formatted through
+`lib/dates.ts` with a pinned locale and time zone to keep server and client
+text identical.
+
+Head tags are server-owned. Controllers build a `PageMetaData` through a
+per-page Action (`BuildVenueShowPageMeta`, `BuildCourtShowPageMeta`, …),
+`HeadTagRenderer` turns it into HTML strings keyed by `data-inertia`, and
+they travel as the `head` prop. Inertia's `serverHead` option prints them on
+the server and keeps them in sync on navigation; the Blade root view prints
+the same list when SSR is off. Pages without their own metadata get a
+default from the middleware: private routes are `noindex, nofollow` with a
+title from `PrivatePageTitles`. JSON-LD is encoded with `JSON_HEX_TAG` and
+`JSON_HEX_AMP`, so review text can never close the script element.
+
+Indexing rules: venue and court pages, the plain venue listing and per-city
+listings are indexable with self-canonicals (keeping `page` from page two);
+searches, geographic and facet variants and re-sorted review lists are
+`noindex, follow`. Structured data uses `SportsActivityLocation` for venues
+and courts, with `AggregateRating` only once reviewed. The rating emitted is
+the displayed (Bayesian by default) score, because search engines require
+the marked-up rating to match the visible one; `ratingCount` is the true
+review count. The sitemap is built from two queries and cached for an hour;
+past 50,000 URLs it would need a sitemap index. `/venues` keeps its
+60-requests-per-minute limit, far above what crawlers need at this size.
+
+## 11. Known limitations and scale
 
 At today's size a single PostgreSQL instance does everything, and that is
 the right call. Things that would change at 100× the traffic:

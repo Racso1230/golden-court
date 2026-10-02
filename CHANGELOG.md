@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Inertia server-side rendering for the public pages, with an
+  environment-driven configuration and a Node-environment render guard in
+  Vitest.
+- Server-built head tags: titles, descriptions, canonicals, robots, Open
+  Graph and Twitter cards, JSON-LD for venues, courts, reviews, breadcrumbs
+  and the site search box.
+- `sitemap.xml` and a dynamic `robots.txt`.
+- Dark mode and the appearance setting removed; the site is white only.
+
 ## v0.1.0 — 2026-09-18
 
 First complete build of Golden Court, delivered in eight phases.
