@@ -16,6 +16,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import type { ReplyFormData, ReviewReply } from '@/types';
 
 /**
@@ -59,13 +60,12 @@ function destroy(): void {
             <Label :for="`reply-${reviewId}`">
                 {{ reply ? 'Edit your reply' : 'Reply as the venue' }}
             </Label>
-            <textarea
+            <Textarea
                 :id="`reply-${reviewId}`"
                 v-model="form.body"
                 required
                 maxlength="1000"
                 rows="3"
-                class="border-input bg-background focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
                 placeholder="Thank the player or explain what has changed since."
             />
             <InputError :message="form.errors.body" />

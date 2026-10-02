@@ -8,6 +8,7 @@ import RatingInput from '@/components/RatingInput.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
     isRating,
     type Rating,
@@ -91,14 +92,13 @@ function submit(): void {
 
         <div class="grid gap-1.5">
             <Label for="body">Your review</Label>
-            <textarea
+            <Textarea
                 id="body"
                 v-model="form.body"
                 required
                 minlength="20"
                 maxlength="2000"
                 rows="6"
-                class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
                 placeholder="At least 20 characters. What was it like to play here?"
                 :aria-invalid="form.errors.body ? 'true' : undefined"
             />

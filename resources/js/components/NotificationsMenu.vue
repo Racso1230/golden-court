@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { Bell } from '@lucide/vue';
-import { computed } from 'vue';
-import MarkAllNotificationsReadController from '@/actions/App/Http/Controllers/Notifications/MarkAllNotificationsReadController';
-import MarkNotificationReadController from '@/actions/App/Http/Controllers/Notifications/MarkNotificationReadController';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -14,25 +11,9 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDate } from '@/lib/dates';
+import { useNotifications } from '@/composables/useNotifications';
 
-const page = usePage();
-const notifications = computed(() => page.props.notifications);
-
-function markRead(id: string): void {
-    router.post(
-        MarkNotificationReadController.url(id),
-        {},
-        { preserveScroll: true },
-    );
-}
-
-function markAllRead(): void {
-    router.post(
-        MarkAllNotificationsReadController.url(),
-        {},
-        { preserveScroll: true },
-    );
-}
+const { notifications, markRead, markAllRead } = useNotifications();
 </script>
 
 <template>

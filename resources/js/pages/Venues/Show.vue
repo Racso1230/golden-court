@@ -17,6 +17,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { index as venuesIndex } from '@/routes/venues';
 import type { VenueClaimFormData, VenueDetail } from '@/types';
 
@@ -90,14 +91,13 @@ function submitClaim(): void {
                     </DialogHeader>
                     <div class="grid gap-1.5">
                         <Label for="evidence">Evidence</Label>
-                        <textarea
+                        <Textarea
                             id="evidence"
                             v-model="claimForm.evidence"
                             required
                             minlength="20"
                             maxlength="2000"
                             rows="4"
-                            class="border-input bg-background focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
                             placeholder="e.g. I am the club manager; my email matches the domain on our website."
                         />
                         <InputError :message="claimForm.errors.evidence" />

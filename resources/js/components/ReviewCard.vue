@@ -20,6 +20,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { formatDate } from '@/lib/dates';
 import { edit as reviewEdit } from '@/routes/reviews';
 import type { FlagReviewFormData, Option, Review } from '@/types';
@@ -184,12 +185,11 @@ function submitFlag(): void {
                             <Label :for="`flag-details-${review.id}`">
                                 Details (optional)
                             </Label>
-                            <textarea
+                            <Textarea
                                 :id="`flag-details-${review.id}`"
                                 v-model="flagForm.details"
                                 maxlength="1000"
                                 rows="3"
-                                class="border-input bg-background focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
                             />
                             <InputError :message="flagForm.errors.details" />
                         </div>
