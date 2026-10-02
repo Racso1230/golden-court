@@ -33,3 +33,5 @@ export type ModerationLogEntry = App.Domain.Moderation.Data.ModerationLogData;
 
 export type VenueClaim = App.Domain.Claims.Data.VenueClaimData;
 export type ClaimStatus = App.Domain.Claims.Enums.ClaimStatus;
+
+export type DashboardSummary = App.Domain.Users.Data.DashboardSummaryData;

@@ -198,6 +198,15 @@ label: string,
 }
 namespace Users {
 namespace Data {
+export type DashboardSummaryData = {
+reviewCount: number,
+pendingReviewCount: number,
+helpfulVoteCount: number,
+claimCount: number,
+pendingClaimCount: number,
+ownedVenueCount: number,
+unansweredReviewCount: number,
+};
 export type NotificationData = {
 id: string,
 message: string,

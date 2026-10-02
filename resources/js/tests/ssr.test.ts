@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DefineComponent } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { resolveLayout } from '@/inertia';
+import type { DashboardSummary } from '@/types';
 import {
     courtDetail,
     options,
@@ -196,6 +197,59 @@ describe('server-side rendering', () => {
         expect(body).toContain('Response from the owner');
         expect(body).toContain('of Harbourside Padel');
         expect(body).toContain('Thanks for playing with us.');
+        expect(warnings).toEqual([]);
+    });
+
+    it('renders the dashboard for a venue owner', async () => {
+        const { body } = await renderPage(
+            'Dashboard',
+            {
+                ...sharedProps({
+                    auth: {
+                        user: {
+                            id: 7,
+                            name: 'Club Owner',
+                            display_name: 'club_owner',
+                            role: 'venue_owner',
+                            email: 'owner@example.test',
+                            email_verified_at: '2026-09-01T00:00:00+00:00',
+                            created_at: '2026-09-01T00:00:00+00:00',
+                            updated_at: '2026-09-01T00:00:00+00:00',
+                        },
+                    },
+                    notifications: {
+                        unreadCount: 1,
+                        items: [
+                            {
+                                id: 'n1',
+                                message:
+                                    'Your claim on Harbourside Padel was approved.',
+                                url: null,
+                                readAt: null,
+                                createdAt: '2026-09-30T09:00:00+00:00',
+                            },
+                        ],
+                    },
+                }),
+                summary: {
+                    reviewCount: 4,
+                    pendingReviewCount: 1,
+                    helpfulVoteCount: 9,
+                    claimCount: 1,
+                    pendingClaimCount: 0,
+                    ownedVenueCount: 1,
+                    unansweredReviewCount: 3,
+                } satisfies DashboardSummary,
+            },
+            '/dashboard',
+        );
+
+        expect(body).toContain('Welcome back, club_owner');
+        expect(body).toContain('1 awaiting moderation');
+        expect(body).toContain('Reviews to answer');
+        expect(body).toContain('Across 1 venue you own');
+        expect(body).toContain('Your claim on Harbourside Padel was approved.');
+        expect(body).not.toContain('Moderation');
         expect(warnings).toEqual([]);
     });
 });
