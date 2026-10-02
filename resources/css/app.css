@@ -77,7 +77,7 @@ Tailwind would key `dark:` on prefers-color-scheme instead. */
     --muted-foreground: #69625d;
     --accent: #fcf7e8;
     --accent-foreground: #1d1713;
-    --destructive: #df2225;
+    --destructive: #c81e21;
     --destructive-foreground: #ffffff;
     --success: #0a7e3a;
     --success-foreground: #ffffff;
