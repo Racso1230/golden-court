@@ -6,6 +6,12 @@ import NativeSelect from '@/components/NativeSelect.vue';
 import RatingInput from '@/components/RatingInput.vue';
 import RatingStars from '@/components/RatingStars.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SectionCard from '@/components/SectionCard.vue';
+import StatCard from '@/components/StatCard.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Textarea } from '@/components/ui/textarea';
 
 // Components are mounted on their own, without page landmarks, so the
 // "content must be inside a region" rule does not apply here.
@@ -85,6 +91,79 @@ describe('accessibility of the shared components', () => {
             { attachTo: document.body },
         );
 
+        expect(await axe(wrapper.element, options)).toHaveNoViolations();
+    });
+});
+
+describe('accessibility of the page primitives', () => {
+    it('Textarea is a labelled control', async () => {
+        const wrapper = mount(
+            {
+                components: { Textarea },
+                template: `
+                    <label for="body">Your review</label>
+                    <Textarea id="body" model-value="" />
+                `,
+            },
+            { attachTo: document.body },
+        );
+
+        expect(wrapper.find('textarea#body').exists()).toBe(true);
+        expect(await axe(wrapper.element, options)).toHaveNoViolations();
+    });
+
+    it('PageHeader renders one h1 with its eyebrow and description', async () => {
+        const wrapper = mount(PageHeader, {
+            props: {
+                title: 'Settings',
+                eyebrow: 'Your account',
+                description: 'Manage your profile.',
+            },
+        });
+
+        expect(wrapper.findAll('h1')).toHaveLength(1);
+        expect(wrapper.find('h1').text()).toBe('Settings');
+        expect(wrapper.text()).toContain('Your account');
+        expect(await axe(wrapper.element, options)).toHaveNoViolations();
+    });
+
+    it('EmptyState hides its icon from assistive technology', async () => {
+        const wrapper = mount(EmptyState, {
+            props: { title: 'Nothing yet', description: 'Check back soon.' },
+            slots: { icon: '<svg></svg>' },
+        });
+
+        expect(wrapper.find('[aria-hidden="true"] svg').exists()).toBe(true);
+        expect(await axe(wrapper.element, options)).toHaveNoViolations();
+    });
+
+    it('SectionCard titles its section with an h2', async () => {
+        const wrapper = mount(SectionCard, {
+            props: { title: 'Profile', description: 'Your details' },
+            slots: { default: '<p>Body</p>' },
+        });
+
+        expect(wrapper.find('section h2').text()).toBe('Profile');
+        expect(await axe(wrapper.element, options)).toHaveNoViolations();
+    });
+
+    it('StatCard shows its label, value and hint as text', async () => {
+        const wrapper = mount(StatCard, {
+            props: { label: 'Reviews written', value: 4, hint: '1 pending' },
+        });
+
+        expect(wrapper.text()).toContain('Reviews written');
+        expect(wrapper.text()).toContain('4');
+        expect(await axe(wrapper.element, options)).toHaveNoViolations();
+    });
+
+    it('StatusBadge carries its label as text, not colour alone', async () => {
+        const wrapper = mount(StatusBadge, {
+            props: { tone: 'warning' },
+            slots: { default: 'Pending' },
+        });
+
+        expect(wrapper.text()).toBe('Pending');
         expect(await axe(wrapper.element, options)).toHaveNoViolations();
     });
 });
