@@ -6,9 +6,9 @@ This file is the standing brief for Claude Code. Read `docs/plan/00-overview.md`
 
 ## Stack
 
-- PHP 8.4, Laravel 12, PostgreSQL 17 (PostGIS available)
-- Inertia 2 + Vue 3 + TypeScript (Laravel Vue starter kit), Tailwind, shadcn-vue
-- Pest for tests, Larastan (PHPStan) level 8, Pint, ESLint, vue-tsc
+- PHP 8.4, Laravel 13, PostgreSQL 17 (PostGIS available)
+- Inertia 3 (with SSR) + Vue 3 + TypeScript (Laravel Vue starter kit), Tailwind, shadcn-vue
+- Pest for tests, Larastan (PHPStan) level 8, Pint, vite-plus (oxlint, oxfmt, Vitest), vue-tsc
 - spatie/laravel-data for DTOs, spatie/typescript-transformer for generated TS types
 - Local dev via Laravel Herd; database on 127.0.0.1:5432, database name `golden_court`
 
@@ -26,6 +26,7 @@ This file is the standing brief for Claude Code. Read `docs/plan/00-overview.md`
 10. Tests run against PostgreSQL, never SQLite.
 11. TypeScript is `strict: true`. Frontend types for backend data come from `resources/js/types/generated.d.ts` — never hand-write a type that mirrors a PHP Data class.
 12. No `any` in TypeScript without a comment explaining why.
+13. Every component must render on the server: no `window`, `document`, `navigator` or `localStorage` outside `onMounted` or event handlers; dates only through `resources/js/lib/dates.ts`; page head tags come from PHP (`app/Support/Seo`), never `<Head>` in a page.
 
 ## Folder layout
 
@@ -70,7 +71,7 @@ Eloquent models live in their bounded context, not in `app/Models`. Update `conf
 
 ## Definition of done for any task
 
-`composer check` passes (Pint, PHPStan, Pest) and `npm run check` passes (ESLint, vue-tsc, build). If either script does not exist yet, Phase 1 creates them.
+`composer check` passes (Pint, PHPStan, Pest) and `npm run check` passes (lint, format, build incl. the SSR bundle, vue-tsc, Vitest). If either script does not exist yet, Phase 1 creates them.
 
 ## What not to do
 
