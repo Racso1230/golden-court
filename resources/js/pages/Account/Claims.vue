@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -31,8 +31,6 @@ function statusVariant(
 </script>
 
 <template>
-    <Head title="My claims" />
-
     <div class="flex flex-col space-y-6 p-4">
         <Heading
             title="My venue claims"

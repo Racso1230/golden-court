@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import StoreVenueClaimController from '@/actions/App/Http/Controllers/Claims/StoreVenueClaimController';
 import CourtCard from '@/components/CourtCard.vue';
@@ -35,8 +35,6 @@ function submitClaim(): void {
 </script>
 
 <template>
-    <Head :title="venue.name" />
-
     <Link :href="venuesIndex()" class="text-sm hover:underline">
         ← All venues
     </Link>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import DimensionBars from '@/components/DimensionBars.vue';
 import GoldenCourtBadge from '@/components/GoldenCourtBadge.vue';
@@ -74,8 +74,6 @@ const sortModel = computed({
 </script>
 
 <template>
-    <Head :title="`${court.court.name} at ${court.venueName}`" />
-
     <Link :href="venueShow(court.venueSlug)" class="text-sm hover:underline">
         ← {{ court.venueName }}
     </Link>

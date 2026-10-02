@@ -24,6 +24,10 @@ export function sharedProps(
         auth: { user: null },
         notifications: null,
         sidebarOpen: true,
+        head: [
+            '<title data-inertia="title">Golden Court</title>',
+            '<meta name="robots" content="noindex, nofollow" data-inertia="robots">',
+        ],
         ...overrides,
     };
 }

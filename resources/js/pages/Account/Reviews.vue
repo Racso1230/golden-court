@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
 import RatingStars from '@/components/RatingStars.vue';
@@ -32,8 +32,6 @@ function statusVariant(
 </script>
 
 <template>
-    <Head title="My reviews" />
-
     <div class="flex flex-col space-y-6 p-4">
         <Heading
             title="My reviews"

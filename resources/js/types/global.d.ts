@@ -21,6 +21,8 @@ declare module '@inertiajs/core' {
             /** Null for guests. */
             notifications: App.Domain.Users.Data.NotificationsSummaryData | null;
             sidebarOpen: boolean;
+            /** Head elements as HTML strings, built on the server (app/Support/Seo). */
+            head: string[];
             [key: string]: unknown;
         };
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import ChangeReviewStatusController from '@/actions/App/Http/Controllers/Admin/ChangeReviewStatusController';
 import ResolveReviewFlagsController from '@/actions/App/Http/Controllers/Admin/ResolveReviewFlagsController';
 import Heading from '@/components/Heading.vue';
@@ -27,8 +27,6 @@ function describeDetails(details: ModerationLogEntry['details']): string {
 </script>
 
 <template>
-    <Head :title="`Review #${review.review.id}`" />
-
     <div class="flex flex-col space-y-6 p-4">
         <Link :href="adminDashboard()" class="text-sm hover:underline">
             ← Moderation

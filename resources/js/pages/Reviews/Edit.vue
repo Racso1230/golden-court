@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import DestroyReviewController from '@/actions/App/Http/Controllers/Reviews/DestroyReviewController';
 import Heading from '@/components/Heading.vue';
 import ReviewForm from '@/components/ReviewForm.vue';
@@ -31,8 +31,6 @@ function destroy(): void {
 </script>
 
 <template>
-    <Head :title="`Edit your review of ${court.name}`" />
-
     <div class="mx-auto flex w-full max-w-2xl flex-col space-y-6 p-4">
         <Link
             :href="courtShow({ venue: venueSlug, court: court.slug })"

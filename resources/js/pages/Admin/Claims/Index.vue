@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import ApproveVenueClaimController from '@/actions/App/Http/Controllers/Admin/ApproveVenueClaimController';
 import RejectVenueClaimController from '@/actions/App/Http/Controllers/Admin/RejectVenueClaimController';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
@@ -46,8 +46,6 @@ function reject(claim: VenueClaim): void {
 </script>
 
 <template>
-    <Head title="Pending claims" />
-
     <div class="flex flex-col space-y-6 p-4">
         <Heading
             title="Pending venue claims"

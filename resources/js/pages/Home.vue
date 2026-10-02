@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import RatingStars from '@/components/RatingStars.vue';
 import VenueCard from '@/components/VenueCard.vue';
@@ -24,8 +24,6 @@ function search(): void {
 </script>
 
 <template>
-    <Head title="Find your next court" />
-
     <section class="space-y-6 py-8 text-center">
         <h1 class="text-4xl font-bold tracking-tight">
             Find the best padel courts near you

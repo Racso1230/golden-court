@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ config('seo.locale') }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="{{ config('seo.theme_color') }}">
 
         {{-- Paint the page white before the stylesheet arrives. --}}
         <style>
@@ -19,7 +20,10 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            {{-- Without SSR the server-built head tags are printed here; the client adopts them by their data-inertia keys. --}}
+            @foreach ($page['props']['head'] ?? [] as $tag)
+                {!! $tag !!}
+            @endforeach
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

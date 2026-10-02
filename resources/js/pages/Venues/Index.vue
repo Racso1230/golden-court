@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import NativeSelect from '@/components/NativeSelect.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
@@ -128,8 +127,6 @@ function clear(): void {
 </script>
 
 <template>
-    <Head title="Venues" />
-
     <h1 class="text-3xl font-bold tracking-tight">Venues</h1>
 
     <form

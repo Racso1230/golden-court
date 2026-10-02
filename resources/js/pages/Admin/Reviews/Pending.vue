@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import ChangeReviewStatusController from '@/actions/App/Http/Controllers/Admin/ChangeReviewStatusController';
 import Heading from '@/components/Heading.vue';
 import ModerationReviewCard from '@/components/ModerationReviewCard.vue';
@@ -19,8 +18,6 @@ defineProps<{ reviews: Paginated<ModerationReview> }>();
 </script>
 
 <template>
-    <Head title="Pending reviews" />
-
     <div class="flex flex-col space-y-6 p-4">
         <Heading
             title="Pending reviews"

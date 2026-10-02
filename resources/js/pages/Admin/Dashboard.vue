@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import { index as claimsIndex } from '@/routes/admin/claims';
 import { index as flagsIndex } from '@/routes/admin/flags';
@@ -10,8 +10,6 @@ defineProps<{ counts: ModerationCounts }>();
 </script>
 
 <template>
-    <Head title="Admin" />
-
     <div class="flex flex-col space-y-6 p-4">
         <Heading
             title="Moderation"
