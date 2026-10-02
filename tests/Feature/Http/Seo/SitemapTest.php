@@ -79,6 +79,15 @@ it('dates a court by its newest published review', function (): void {
         ->and($entries[0]['lastmod'])->toBe($courtEntry['lastmod']);
 });
 
+it('survives a round trip through a serialising cache store', function (): void {
+    config()->set('cache.default', 'database');
+    $venue = Venue::factory()->create();
+
+    get(route('sitemap'))->assertOk();
+
+    expect((string) get(route('sitemap'))->assertOk()->getContent())->toContain($venue->slug);
+});
+
 it('serves the sitemap from the cache until it expires', function (): void {
     get(route('sitemap'));
     $venue = Venue::factory()->create();

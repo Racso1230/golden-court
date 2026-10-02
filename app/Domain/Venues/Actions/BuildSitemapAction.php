@@ -33,8 +33,23 @@ final readonly class BuildSitemapAction
      */
     public function handle(): array
     {
-        /** @var list<SitemapEntry> */
-        return $this->cache->remember(self::CACHE_KEY, self::CACHE_SECONDS, fn (): array => $this->build());
+        // The cache refuses to unserialise objects (cache.serializable_classes),
+        // so entries are stored as plain arrays and rebuilt on the way out.
+        $rows = $this->cache->remember(self::CACHE_KEY, self::CACHE_SECONDS, fn (): array => array_map(
+            static fn (SitemapEntry $entry): array => [
+                'loc' => $entry->loc,
+                'lastmod' => $entry->lastModified?->toAtomString(),
+            ],
+            $this->build(),
+        ));
+
+        return array_map(
+            static fn (array $row): SitemapEntry => new SitemapEntry(
+                $row['loc'],
+                $row['lastmod'] === null ? null : CarbonImmutable::parse($row['lastmod']),
+            ),
+            $rows,
+        );
     }
 
     /**
