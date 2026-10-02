@@ -51,7 +51,6 @@ defineProps<{
                     name="email"
                     required
                     autofocus
-                    :tabindex="1"
                     autocomplete="email"
                     placeholder="email@example.com"
                 />
@@ -65,7 +64,6 @@ defineProps<{
                         v-if="canResetPassword"
                         :href="request()"
                         class="text-sm"
-                        :tabindex="5"
                     >
                         Forgot your password?
                     </TextLink>
@@ -74,7 +72,6 @@ defineProps<{
                     id="password"
                     name="password"
                     required
-                    :tabindex="2"
                     autocomplete="current-password"
                     placeholder="Password"
                 />
@@ -83,7 +80,7 @@ defineProps<{
 
             <div class="flex items-center justify-between">
                 <Label for="remember" class="flex items-center space-x-3">
-                    <Checkbox id="remember" name="remember" :tabindex="3" />
+                    <Checkbox id="remember" name="remember" />
                     <span>Remember me</span>
                 </Label>
             </div>
@@ -91,7 +88,6 @@ defineProps<{
             <Button
                 type="submit"
                 class="mt-4 w-full"
-                :tabindex="4"
                 :disabled="processing"
                 data-test="login-button"
             >
@@ -102,7 +98,7 @@ defineProps<{
 
         <div class="text-muted-foreground text-center text-sm">
             Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+            <TextLink :href="register()">Sign up</TextLink>
         </div>
     </Form>
 </template>
