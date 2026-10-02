@@ -161,6 +161,7 @@ export type ReviewReplyData = {
 id: number,
 body: string,
 authorDisplayName: string,
+fromOwner: boolean,
 createdAt: string,
 };
 export type SubmitReviewData = {

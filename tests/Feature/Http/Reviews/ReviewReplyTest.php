@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Courts\Models\Court;
+use App\Domain\Reviews\Data\ReviewReplyData;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\Models\ReviewReply;
 use App\Domain\Users\Models\User;
@@ -88,4 +89,15 @@ it('validates the body length', function (): void {
     actingAs($owner)
         ->post(route('reviews.reply.store', reviewOwnedBy($owner)), ['body' => str_repeat('x', 1001)])
         ->assertSessionHasErrors('body');
+});
+
+it('does not present an admin reply as the owner\'s', function (): void {
+    $review = reviewOwnedBy(User::factory()->venueOwner()->create());
+
+    actingAs(User::factory()->admin()->create())
+        ->post(route('reviews.reply.store', $review), ['body' => 'Admin note.']);
+
+    $reply = $review->refresh()->reply ?? throw new RuntimeException('The admin reply was not saved.');
+
+    expect(ReviewReplyData::fromModel($reply)->fromOwner)->toBeFalse();
 });

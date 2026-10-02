@@ -187,6 +187,7 @@ const sortModel = computed({
                     :can-reply="canReply"
                     :can-edit="review.isAuthor"
                     :flag-reasons="flagReasons"
+                    :venue-name="court.venueName"
                 />
             </li>
         </ul>

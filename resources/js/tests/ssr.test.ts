@@ -162,7 +162,19 @@ describe('server-side rendering', () => {
             'Courts/Show',
             {
                 court: courtDetail(),
-                reviews: paginated([review()]),
+                reviews: paginated([
+                    review(),
+                    review({
+                        id: 2,
+                        reply: {
+                            id: 1,
+                            body: 'Thanks for playing with us.',
+                            authorDisplayName: 'club_owner',
+                            fromOwner: true,
+                            createdAt: '2026-09-21T09:00:00+00:00',
+                        },
+                    }),
+                ]),
                 sort: 'recent',
                 sortOptions: options({
                     recent: 'Most recent',
@@ -181,6 +193,9 @@ describe('server-side rendering', () => {
         expect(body).toContain('Court 1');
         expect(body).toContain('the turf is a little worn');
         expect(body).toContain('20 Sept 2026');
+        expect(body).toContain('Response from the owner');
+        expect(body).toContain('of Harbourside Padel');
+        expect(body).toContain('Thanks for playing with us.');
         expect(warnings).toEqual([]);
     });
 });

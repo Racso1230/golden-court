@@ -51,5 +51,6 @@ it('takes a player from claiming a venue to replying to a review on it', functio
         ->get(route('courts.show', [$venue, $court]))
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('reviews.data.0.reply.body', 'Thanks for visiting, see you on court.')
-            ->where('reviews.data.0.reply.authorDisplayName', $claimant->display_name));
+            ->where('reviews.data.0.reply.authorDisplayName', $claimant->display_name)
+            ->where('reviews.data.0.reply.fromOwner', true));
 });

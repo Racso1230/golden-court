@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router, useForm } from '@inertiajs/vue3';
-import { Flag, ThumbsUp } from '@lucide/vue';
+import { BadgeCheck, Flag, ThumbsUp } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import FlagReviewController from '@/actions/App/Http/Controllers/Moderation/FlagReviewController';
 import ToggleReviewVoteController from '@/actions/App/Http/Controllers/Reviews/ToggleReviewVoteController';
@@ -8,6 +8,7 @@ import InputError from '@/components/InputError.vue';
 import NativeSelect from '@/components/NativeSelect.vue';
 import RatingStars from '@/components/RatingStars.vue';
 import ReplyForm from '@/components/ReplyForm.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -30,8 +31,15 @@ const props = withDefaults(
         canReply?: boolean;
         canEdit?: boolean;
         flagReasons?: Option[];
+        /** Names the venue in an owner's response. */
+        venueName?: string;
     }>(),
-    { canReply: false, canEdit: false, flagReasons: () => [] },
+    {
+        canReply: false,
+        canEdit: false,
+        flagReasons: () => [],
+        venueName: undefined,
+    },
 );
 
 const dimensions = [
@@ -206,8 +214,27 @@ function submitFlag(): void {
             v-if="review.reply"
             class="bg-muted mt-3 rounded-md p-3 text-sm"
         >
-            <p class="font-semibold">
-                Reply from {{ review.reply.authorDisplayName }}
+            <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <template v-if="review.reply.fromOwner">
+                    <Badge variant="secondary" class="gap-1">
+                        <BadgeCheck aria-hidden="true" />
+                        Owner
+                    </Badge>
+                    <span class="font-semibold">
+                        Response from the owner<template v-if="venueName">
+                            of {{ venueName }}</template
+                        >
+                    </span>
+                </template>
+                <span v-else class="font-semibold">
+                    Response from {{ review.reply.authorDisplayName }}
+                </span>
+                <span class="text-muted-foreground text-xs">
+                    ·
+                    <time :datetime="review.reply.createdAt">
+                        {{ formatDate(review.reply.createdAt) }}
+                    </time>
+                </span>
             </p>
             <p class="mt-1 whitespace-pre-line">{{ review.reply.body }}</p>
         </blockquote>
