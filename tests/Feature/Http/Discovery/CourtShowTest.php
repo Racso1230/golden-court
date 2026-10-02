@@ -7,6 +7,7 @@ use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\Models\ReviewVote;
 use App\Domain\Users\Models\User;
 use App\Domain\Venues\Models\Venue;
+use Illuminate\Support\Collection;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -100,4 +101,29 @@ it('places the court at its venue', function (): void {
             ->where('court.venueCoordinates.latitude', $venue->latitude)
             ->where('court.venueCoordinates.longitude', $venue->longitude)
             ->where('court.venueWebsite', $venue->website));
+});
+
+it('describes the court for search engines with its reviews as structured data', function (): void {
+    $court = Court::factory()->create(['name' => 'Court 3']);
+    Review::factory()->count(2)->for($court)->create();
+
+    get(route('courts.show', [$court->venue, $court]))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('head', function (Collection $head) use ($court): bool {
+                $tags = $head->all();
+                $place = jsonLd($tags, 'court');
+
+                return str_contains((string) headTag($tags, 'title'), sprintf('Court 3 at %s', $court->venue->name))
+                    && headTag($tags, 'robots') === '<meta name="robots" content="index, follow" data-inertia="robots">'
+                    && ($place['containedInPlace']['name'] ?? null) === $court->venue->name
+                    && count($place['review'] ?? []) === 2;
+            }));
+});
+
+it('keeps re-sorted review lists out of the index', function (): void {
+    $court = Court::factory()->create();
+
+    get(route('courts.show', [$court->venue, $court, 'sort' => 'highest']))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('head', fn (Collection $head): bool => headTag($head->all(), 'robots') === '<meta name="robots" content="noindex, follow" data-inertia="robots">'));
 });

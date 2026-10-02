@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Discovery;
 
+use App\Domain\Courts\Actions\BuildCourtShowPageMeta;
 use App\Domain\Courts\Data\CourtDetailData;
 use App\Domain\Courts\Models\Court;
 use App\Domain\Courts\Queries\GoldenCourtQuery;
@@ -17,28 +18,43 @@ use App\Domain\Shared\Data\OptionData;
 use App\Domain\Venues\Models\Venue;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Discovery\CourtShowRequest;
+use App\Support\Seo\HeadTagRenderer;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CourtShowController extends Controller
 {
-    public function __invoke(CourtShowRequest $request, Venue $venue, Court $court, GoldenCourtQuery $goldenCourts): Response
-    {
+    public function __invoke(
+        CourtShowRequest $request,
+        Venue $venue,
+        Court $court,
+        GoldenCourtQuery $goldenCourts,
+        BuildCourtShowPageMeta $meta,
+        HeadTagRenderer $head,
+    ): Response {
         $court->setRelation('venue', $venue);
         $viewer = $request->user();
 
         $reviews = (new CourtReviewsQuery($court, $request->sort(), $viewer))
             ->paginate(page: $request->page())
             ->withQueryString();
-        $reviews->through(fn (Review $review): ReviewData => ReviewData::fromModel($review, $viewer));
+
+        /** @var list<ReviewData> $reviewData */
+        $reviewData = $reviews->getCollection()
+            ->map(fn (Review $review): ReviewData => ReviewData::fromModel($review, $viewer))
+            ->values()
+            ->all();
+        $reviews->setCollection(collect($reviewData));
+
+        $detail = CourtDetailData::fromModel(
+            $court,
+            $goldenCourts->forCity($venue->city)?->is($court) ?? false,
+            (new CourtDimensionAveragesQuery($court))->get(),
+        );
 
         return Inertia::render('Courts/Show', [
-            'court' => CourtDetailData::fromModel(
-                $court,
-                $goldenCourts->forCity($venue->city)?->is($court) ?? false,
-                (new CourtDimensionAveragesQuery($court))->get(),
-            ),
+            'court' => $detail,
             'reviews' => $reviews,
             'sort' => $request->sort(),
             'sortOptions' => OptionData::fromEnum(ReviewSort::class),
@@ -47,6 +63,7 @@ class CourtShowController extends Controller
             'hasReviewed' => $viewer !== null && $viewer->reviews()->where('court_id', $court->id)->exists(),
             // UI hint only; ReviewReplyPolicy is what actually decides per review.
             'canReply' => $viewer !== null && ($viewer->isAdmin() || $venue->isOwnedBy($viewer)),
+            'head' => $head->render($meta->handle($detail, $reviewData, $request->sort(), $request->page(), $reviews->lastPage())),
         ]);
     }
 }
