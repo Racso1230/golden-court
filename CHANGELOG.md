@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.2.0 — 2026-10-02
+
+A front-end redesign in four phases, plus SEO.
 
 - Inertia server-side rendering for the public pages, with an
   environment-driven configuration and a Node-environment render guard in
@@ -20,6 +22,10 @@
   an owner's reply, notifications and quick links.
 - Owner replies are labelled "Response from the owner"; new players see when
   they may review.
+- Every page redesigned on shared primitives: the home page, venue search
+  (with a Use my location button), venue and court pages, review forms,
+  account, admin, settings and auth pages. axe passes on all of them,
+  including colour contrast, at desktop and phone widths.
 
 ## v0.1.0 — 2026-09-18
 

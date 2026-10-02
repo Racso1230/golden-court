@@ -10,6 +10,12 @@ The name is a play on padel's **golden point**, the single point that decides
 a game. The top-scoring court in each city, with at least five reviews,
 carries the Golden Court badge.
 
+![The Golden Court home page](docs/screenshots/home.png)
+
+| A court page | A venue owner's dashboard |
+| --- | --- |
+| ![A court with its scores and reviews](docs/screenshots/court.png) | ![The account dashboard](docs/screenshots/dashboard.png) |
+
 ## Features
 
 - Search venues by name or city (PostgreSQL full-text) or by distance from a
@@ -21,7 +27,13 @@ carries the Golden Court badge.
   aggregator: a Bayesian average by default, a simple mean if you prefer.
 - Helpful votes, flagging with automatic escalation after three flags, and an
   admin area for claims and moderation with an append-only audit log.
-- Venue claims with admin approval, owner replies, database notifications.
+- Venue claims with admin approval, owner replies labelled "Response from
+  the owner", database notifications and an account dashboard.
+- A white and gold design on one top-navigation layout, checked with axe
+  (including colour contrast) at desktop and phone widths.
+- Search-engine friendly: the public pages are server-rendered with their
+  own titles, descriptions, canonicals, Open Graph cards and schema.org
+  data, plus `sitemap.xml` and `robots.txt`.
 - Strict typing end to end: PHP `strict_types` and Larastan level 8, Data
   classes generating the TypeScript types the Vue pages use.
 

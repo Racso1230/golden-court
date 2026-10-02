@@ -251,7 +251,19 @@ Each layer's tests prove something specific:
   `Model::shouldBeStrict()` turning any lazy load into a failure.
 - **Frontend** (Vitest via vite-plus, jsdom): `RatingInput` keyboard and ARIA
   behaviour, `RatingStars`, `ScoreBadge`, the `useVenueSearch` composable,
-  and axe-core checks on the shared components.
+  and axe-core checks on the shared components and page primitives, plus
+  a Node-environment suite that imports every module and server-renders the
+  public pages (section 10).
+
+The design system lives in `resources/css/app.css` as Tailwind 4 tokens: a
+warm white base, a named `gold` scale, `success` and `destructive` colours,
+and Instrument Serif for display headings over Instrument Sans. Pages are
+built from a small set of primitives (`PageHeader` as the single `h1`,
+`SectionCard`, `StatCard`, `EmptyState`, `StatusBadge`) inside one
+`AppLayout`; navigation is defined once in `lib/navigation.ts` and matched
+on the Inertia page component. Gold text is restricted to the 600 and 700
+shades so it meets WCAG AA, and the decorative 500 shade is always paired
+with a number.
 
 ## 10. Server-side rendering and SEO
 
