@@ -88,7 +88,6 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'notifications' => fn (): ?NotificationsSummaryData => $user === null ? null : NotificationsSummaryData::forUser($user),
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             // Head tags for pages whose controller does not build their own; see app/Support/Seo.
             'head' => fn (): array => $this->head->render($this->defaultMeta($request)),
         ];

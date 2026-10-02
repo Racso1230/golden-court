@@ -12,3 +12,8 @@ export type NavItem = {
     icon?: LucideIcon;
     isActive?: boolean;
 };
+
+/** A tab in an area's section navigation, active for some page components. */
+export type SectionTab = Omit<NavItem, 'isActive'> & {
+    isActive: (component: string) => boolean;
+};

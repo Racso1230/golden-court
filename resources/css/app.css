@@ -59,16 +59,6 @@ Tailwind would key `dark:` on prefers-color-scheme instead. */
     --color-gold-800: #7e4a09;
     --color-gold-900: #663d12;
     --color-gold-950: #3e2104;
-
-    /* Used only by the starter sidebar shell until it is deleted. */
-    --color-sidebar: var(--background);
-    --color-sidebar-foreground: var(--foreground);
-    --color-sidebar-primary: var(--primary);
-    --color-sidebar-primary-foreground: var(--primary-foreground);
-    --color-sidebar-accent: var(--accent);
-    --color-sidebar-accent-foreground: var(--accent-foreground);
-    --color-sidebar-border: var(--border);
-    --color-sidebar-ring: var(--ring);
 }
 
 :root {
