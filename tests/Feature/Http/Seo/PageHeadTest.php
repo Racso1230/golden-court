@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Inertia\Response;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -29,13 +32,16 @@ it('treats the auth pages as private', function (): void {
 });
 
 it('gives a public page a canonical, a description and sharing tags by default', function (): void {
+    // A route of its own: every real public page builds richer metadata in its controller.
+    Route::middleware('web')->get('/seo-default', fn (): Response => Inertia::render('Home', ['topVenues' => [], 'recentReviews' => []]));
     $base = rtrim((string) config('app.url'), '/');
 
-    get(route('home'))
+    get('/seo-default')
+        ->assertOk()
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('head', fn (Collection $head): bool => headTag($head->all(), 'title') === sprintf('<title data-inertia="title">%s</title>', config('app.name'))
                 && headTag($head->all(), 'robots') === '<meta name="robots" content="index, follow" data-inertia="robots">'
-                && headTag($head->all(), 'canonical') === sprintf('<link rel="canonical" href="%s/" data-inertia="canonical">', $base)
+                && headTag($head->all(), 'canonical') === sprintf('<link rel="canonical" href="%s/seo-default" data-inertia="canonical">', $base)
                 && headTag($head->all(), 'description') !== null
                 && headTag($head->all(), 'og:url') !== null));
 });
