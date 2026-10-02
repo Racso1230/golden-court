@@ -12,6 +12,16 @@ import {
 import { store } from '@/routes/two-factor/login';
 import type { TwoFactorConfigContent } from '@/types';
 
+// Static defaults for the first render; the watcher below swaps them when
+// the player switches to a recovery code.
+defineOptions({
+    layout: {
+        title: 'Authentication code',
+        description:
+            'Enter the authentication code provided by your authenticator application.',
+    },
+});
+
 const showRecoveryInput = ref<boolean>(false);
 const code = ref<string>('');
 
