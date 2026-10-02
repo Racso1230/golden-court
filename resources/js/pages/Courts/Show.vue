@@ -8,6 +8,7 @@ import PaginationLinks from '@/components/PaginationLinks.vue';
 import ReviewCard from '@/components/ReviewCard.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
 import { Button } from '@/components/ui/button';
+import { formatDateTime } from '@/lib/dates';
 import { login } from '@/routes';
 import { show as courtShow } from '@/routes/courts';
 import { create as reviewCreate, edit as reviewEdit } from '@/routes/reviews';
@@ -28,6 +29,8 @@ const props = defineProps<{
     sortOptions: Option[];
     flagReasons: Option[];
     canReview: boolean;
+    /** Set when a new account must wait before reviewing: when it may. */
+    reviewableFrom: string | null;
     hasReviewed: boolean;
     canReply: boolean;
 }>();
@@ -45,7 +48,9 @@ type Cta =
     | { kind: 'login' }
     | { kind: 'verify' }
     | { kind: 'reviewed'; reviewId: number | null }
-    | { kind: 'owner' };
+    | { kind: 'tooNew'; from: string }
+    | { kind: 'owner' }
+    | { kind: 'unavailable' };
 
 const cta = computed<Cta>(() => {
     if (props.canReview) return { kind: 'review' };
@@ -54,8 +59,12 @@ const cta = computed<Cta>(() => {
     if (props.hasReviewed) {
         return { kind: 'reviewed', reviewId: ownReview.value?.id ?? null };
     }
+    if (props.reviewableFrom !== null) {
+        return { kind: 'tooNew', from: props.reviewableFrom };
+    }
+    if (user.value.role === 'venue_owner') return { kind: 'owner' };
 
-    return { kind: 'owner' };
+    return { kind: 'unavailable' };
 });
 
 const sortModel = computed({
@@ -128,8 +137,19 @@ const sortModel = computed({
                     Edit your review
                 </Link>
             </p>
-            <p v-else class="text-muted-foreground">
+            <p
+                v-else-if="cta.kind === 'tooNew'"
+                class="text-muted-foreground max-w-xs sm:text-right"
+                role="status"
+            >
+                New accounts wait a little before writing reviews. You can
+                review this court from {{ formatDateTime(cta.from) }}.
+            </p>
+            <p v-else-if="cta.kind === 'owner'" class="text-muted-foreground">
                 Venue owners cannot review courts.
+            </p>
+            <p v-else class="text-muted-foreground">
+                You cannot review this court.
             </p>
         </div>
     </header>

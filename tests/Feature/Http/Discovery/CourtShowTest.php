@@ -127,3 +127,32 @@ it('keeps re-sorted review lists out of the index', function (): void {
         ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('head', fn (Collection $head): bool => headTag($head->all(), 'robots') === '<meta name="robots" content="noindex, follow" data-inertia="robots">'));
 });
+
+it('tells a new player when they may review', function (): void {
+    config()->set('golden_court.reviews.min_account_age_hours', 1);
+    $player = User::factory()->player()->create(['created_at' => now()->subMinutes(20)]);
+    $court = Court::factory()->create();
+
+    actingAs($player)
+        ->get(route('courts.show', [$court->venue, $court]))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('canReview', false)
+            ->where('reviewableFrom', $player->created_at?->addHour()->toIso8601String()));
+});
+
+it('gives no waiting time once the account is old enough, or to venue owners', function (): void {
+    config()->set('golden_court.reviews.min_account_age_hours', 1);
+    $court = Court::factory()->create();
+
+    actingAs(User::factory()->player()->create(['created_at' => now()->subHours(2)]))
+        ->get(route('courts.show', [$court->venue, $court]))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('canReview', true)
+            ->where('reviewableFrom', null));
+
+    actingAs(User::factory()->venueOwner()->create(['created_at' => now()->subMinutes(5)]))
+        ->get(route('courts.show', [$court->venue, $court]))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('canReview', false)
+            ->where('reviewableFrom', null));
+});

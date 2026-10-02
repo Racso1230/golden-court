@@ -170,6 +170,7 @@ describe('server-side rendering', () => {
                 }),
                 flagReasons: options({ spam: 'Spam', other: 'Other' }),
                 canReview: false,
+                reviewableFrom: null,
                 hasReviewed: false,
                 canReply: false,
             },

@@ -9,11 +9,10 @@ use App\Domain\Reviews\Enums\ReviewStatus;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Users\Enums\Role;
 use App\Domain\Users\Models\User;
-use Illuminate\Contracts\Config\Repository;
 
 final class ReviewPolicy
 {
-    public function __construct(private readonly Repository $config) {}
+    public function __construct(private readonly MinimumAccountAge $accountAge) {}
 
     /**
      * Players (and admins) with an account old enough may review a court they
@@ -26,7 +25,7 @@ final class ReviewPolicy
             return false;
         }
 
-        if (! $this->accountIsOldEnough($user)) {
+        if (! $this->accountAge->isMet($user)) {
             return false;
         }
 
@@ -71,16 +70,5 @@ final class ReviewPolicy
         }
 
         return ! $review->flags()->where('user_id', $user->id)->exists();
-    }
-
-    private function accountIsOldEnough(User $user): bool
-    {
-        $minimumHours = $this->config->integer('golden_court.reviews.min_account_age_hours');
-
-        if ($minimumHours <= 0 || $user->created_at === null) {
-            return true;
-        }
-
-        return $user->created_at->lessThanOrEqualTo(now()->subHours($minimumHours));
     }
 }

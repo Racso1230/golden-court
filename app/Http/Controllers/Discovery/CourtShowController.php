@@ -12,9 +12,11 @@ use App\Domain\Moderation\Enums\FlagReason;
 use App\Domain\Reviews\Data\ReviewData;
 use App\Domain\Reviews\Enums\ReviewSort;
 use App\Domain\Reviews\Models\Review;
+use App\Domain\Reviews\Policies\MinimumAccountAge;
 use App\Domain\Reviews\Queries\CourtDimensionAveragesQuery;
 use App\Domain\Reviews\Queries\CourtReviewsQuery;
 use App\Domain\Shared\Data\OptionData;
+use App\Domain\Users\Enums\Role;
 use App\Domain\Venues\Models\Venue;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Discovery\CourtShowRequest;
@@ -32,6 +34,7 @@ class CourtShowController extends Controller
         GoldenCourtQuery $goldenCourts,
         BuildCourtShowPageMeta $meta,
         HeadTagRenderer $head,
+        MinimumAccountAge $accountAge,
     ): Response {
         $court->setRelation('venue', $venue);
         $viewer = $request->user();
@@ -47,6 +50,13 @@ class CourtShowController extends Controller
             ->all();
         $reviews->setCollection(collect($reviewData));
 
+        $canReview = $viewer !== null && Gate::forUser($viewer)->allows('create', [Review::class, $court]);
+        $hasReviewed = $viewer !== null && $viewer->reviews()->where('court_id', $court->id)->exists();
+        // Lets a new player see when they may review instead of a bare refusal.
+        $reviewableFrom = $viewer !== null && ! $canReview && ! $hasReviewed && ($viewer->role === Role::Player || $viewer->isAdmin())
+            ? $accountAge->reviewableFrom($viewer)?->toIso8601String()
+            : null;
+
         $detail = CourtDetailData::fromModel(
             $court,
             $goldenCourts->forCity($venue->city)?->is($court) ?? false,
@@ -59,8 +69,9 @@ class CourtShowController extends Controller
             'sort' => $request->sort(),
             'sortOptions' => OptionData::fromEnum(ReviewSort::class),
             'flagReasons' => OptionData::fromEnum(FlagReason::class),
-            'canReview' => $viewer !== null && Gate::forUser($viewer)->allows('create', [Review::class, $court]),
-            'hasReviewed' => $viewer !== null && $viewer->reviews()->where('court_id', $court->id)->exists(),
+            'canReview' => $canReview,
+            'reviewableFrom' => $reviewableFrom,
+            'hasReviewed' => $hasReviewed,
             // UI hint only; ReviewReplyPolicy is what actually decides per review.
             'canReply' => $viewer !== null && ($viewer->isAdmin() || $venue->isOwnedBy($viewer)),
             'head' => $head->render($meta->handle($detail, $reviewData, $request->sort(), $request->page(), $reviews->lastPage())),
