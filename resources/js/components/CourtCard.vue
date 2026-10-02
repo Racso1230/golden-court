@@ -2,7 +2,6 @@
 import { Link } from '@inertiajs/vue3';
 import GoldenCourtBadge from '@/components/GoldenCourtBadge.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
-import { Card, CardContent } from '@/components/ui/card';
 import { show as courtShow } from '@/routes/courts';
 import type { CourtSummary } from '@/types';
 
@@ -10,26 +9,30 @@ defineProps<{ court: CourtSummary; venueSlug: string }>();
 </script>
 
 <template>
-    <Card class="py-4">
-        <CardContent class="space-y-2">
-            <div class="flex flex-wrap items-baseline justify-between gap-2">
+    <article
+        class="group bg-card hover:border-gold-300 relative flex h-full flex-col gap-2 rounded-xl border p-5 shadow-xs transition hover:shadow-sm"
+    >
+        <div class="flex flex-wrap items-start justify-between gap-2">
+            <h3 class="text-base font-semibold">
                 <Link
                     :href="courtShow({ venue: venueSlug, court: court.slug })"
-                    class="font-semibold hover:underline"
+                    class="group-hover:underline after:absolute after:inset-0 after:rounded-xl"
                 >
                     {{ court.name }}
                 </Link>
-                <GoldenCourtBadge v-if="court.isGoldenCourt" />
-            </div>
-            <p class="text-muted-foreground text-sm">
-                {{ court.courtTypeLabel }} · {{ court.wallTypeLabel }} ·
-                {{ court.surfaceLabel }}
-            </p>
+            </h3>
+            <GoldenCourtBadge v-if="court.isGoldenCourt" />
+        </div>
+        <p class="text-muted-foreground text-sm">
+            {{ court.courtTypeLabel }} · {{ court.wallTypeLabel }} walls ·
+            {{ court.surfaceLabel }}
+        </p>
+        <div class="mt-auto pt-1">
             <ScoreBadge
                 :score="court.aggregateScore"
                 :review-count="court.reviewCount"
                 size="sm"
             />
-        </CardContent>
-    </Card>
+        </div>
+    </article>
 </template>

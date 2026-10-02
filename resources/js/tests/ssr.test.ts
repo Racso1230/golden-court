@@ -115,7 +115,8 @@ describe('server-side rendering', () => {
         );
 
         expect(body).toContain('data-server-rendered="true"');
-        expect(body).toContain('Find the best padel courts near you');
+        expect(body).toContain('Find the best');
+        expect(body).toContain('padel courts</em> near you');
         expect(body).toContain('Harbourside Padel');
         expect(head.some((tag) => tag.startsWith('<title'))).toBe(true);
         expect(warnings).toEqual([]);
