@@ -12,128 +12,117 @@ Tailwind would key `dark:` on prefers-color-scheme instead. */
 
 @theme inline {
     --font-sans:
-        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    --font-display:
+        'Instrument Serif', ui-serif, Georgia, 'Times New Roman', serif;
 
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 8px);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
-
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
-
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
-
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
-
     --color-muted: var(--muted);
     --color-muted-foreground: var(--muted-foreground);
-
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
-
     --color-destructive: var(--destructive);
     --color-destructive-foreground: var(--destructive-foreground);
-
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
 
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
+    /* The brand gold. 500 is decorative only (stars, meters) and always sits
+       next to a number; text uses 700 at body size or 600 at 24px and up. */
+    --color-gold-50: #fffaeb;
+    --color-gold-100: #fff3ce;
+    --color-gold-200: #ffe599;
+    --color-gold-300: #ffd162;
+    --color-gold-400: #fdb500;
+    --color-gold-500: #eaa000;
+    --color-gold-600: #c37f00;
+    --color-gold-700: #9f6202;
+    --color-gold-800: #7e4a09;
+    --color-gold-900: #663d12;
+    --color-gold-950: #3e2104;
 
-    --color-sidebar: var(--sidebar-background);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-ring: var(--sidebar-ring);
-}
-
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-    *,
-    ::after,
-    ::before,
-    ::backdrop,
-    ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
-    }
-}
-
-@layer utilities {
-    body,
-    html {
-        --font-sans:
-            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-            'Noto Color Emoji';
-    }
+    /* Used only by the starter sidebar shell until it is deleted. */
+    --color-sidebar: var(--background);
+    --color-sidebar-foreground: var(--foreground);
+    --color-sidebar-primary: var(--primary);
+    --color-sidebar-primary-foreground: var(--primary-foreground);
+    --color-sidebar-accent: var(--accent);
+    --color-sidebar-accent-foreground: var(--accent-foreground);
+    --color-sidebar-border: var(--border);
+    --color-sidebar-ring: var(--ring);
 }
 
 :root {
-    --background: hsl(0 0% 100%);
-    --foreground: hsl(0 0% 3.9%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(0 0% 3.9%);
-    --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(0 0% 3.9%);
-    --primary: hsl(0 0% 9%);
-    --primary-foreground: hsl(0 0% 98%);
-    --secondary: hsl(0 0% 92.1%);
-    --secondary-foreground: hsl(0 0% 9%);
-    --muted: hsl(0 0% 96.1%);
-    --muted-foreground: hsl(0 0% 45.1%);
-    --accent: hsl(0 0% 96.1%);
-    --accent-foreground: hsl(0 0% 9%);
-    --destructive: hsl(0 84.2% 60.2%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 92.8%);
-    --input: hsl(0 0% 89.8%);
-    --ring: hsl(0 0% 3.9%);
-    --chart-1: hsl(12 76% 61%);
-    --chart-2: hsl(173 58% 39%);
-    --chart-3: hsl(197 37% 24%);
-    --chart-4: hsl(43 74% 66%);
-    --chart-5: hsl(27 87% 67%);
-    --radius: 0.5rem;
-    --sidebar-background: hsl(0 0% 98%);
-    --sidebar-foreground: hsl(240 5.3% 26.1%);
-    --sidebar-primary: hsl(0 0% 10%);
-    --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(0 0% 94%);
-    --sidebar-accent-foreground: hsl(0 0% 30%);
-    --sidebar-border: hsl(0 0% 91%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(0 0% 98%);
+    --background: #ffffff;
+    --foreground: #1d1713;
+    --card: #ffffff;
+    --card-foreground: #1d1713;
+    --popover: #ffffff;
+    --popover-foreground: #1d1713;
+    /* Gold buttons carry dark text: white on gold fails WCAG AA. */
+    --primary: #eaa000;
+    --primary-foreground: #3e2104;
+    --secondary: #f3f0ea;
+    --secondary-foreground: #1d1713;
+    --muted: #f9f6f2;
+    --muted-foreground: #69625d;
+    --accent: #fcf7e8;
+    --accent-foreground: #1d1713;
+    --destructive: #df2225;
+    --destructive-foreground: #ffffff;
+    --success: #0a7e3a;
+    --success-foreground: #ffffff;
+    --border: #e7e4e0;
+    --input: #e0deda;
+    --ring: #c37f00;
+    --radius: 0.625rem;
 }
 
 @layer base {
     * {
         @apply border-border outline-ring/50;
     }
+
+    @media (prefers-reduced-motion: no-preference) {
+        html {
+            scroll-behavior: smooth;
+        }
+    }
+
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
+    }
+
+    ::selection {
+        @apply bg-gold-200 text-gold-950;
+    }
+
+    :focus-visible {
+        @apply outline-ring outline-2 outline-offset-2;
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply text-balance;
     }
 }

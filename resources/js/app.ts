@@ -7,7 +7,7 @@ void createInertiaApp({
     // Head tags are built on the server and arrive as the `head` prop.
     serverHead: true,
     progress: {
-        color: '#4B5563',
+        color: '#eaa000',
     },
 });
 
