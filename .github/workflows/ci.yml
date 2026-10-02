@@ -78,8 +78,40 @@ jobs:
           php artisan typescript:transform
           git diff --exit-code -- resources/js/types/generated.d.ts
 
-      - name: Frontend checks (lint, format, build, types, vue-tsc, vitest)
-        run: npm run check
+      # The steps below are what `npm run check` runs, one step each so a
+      # failure names its check. `gc_run` mirrors the output and, on failure,
+      # turns its last lines into error annotations, which are readable
+      # without access to the run logs.
+      - name: Define the check runner
+        run: |
+          cat > "$RUNNER_TEMP/gc_run.sh" <<'SH'
+          #!/usr/bin/env bash
+          set -o pipefail
+          log="$RUNNER_TEMP/check.log"
+          if ! "$@" 2>&1 | tee "$log"; then
+            tail -n 40 "$log" | sed -e 's/%/%25/g' -e 's/^/::error::/'
+            exit 1
+          fi
+          SH
+          chmod +x "$RUNNER_TEMP/gc_run.sh"
+
+      - name: Lint (oxlint)
+        run: $RUNNER_TEMP/gc_run.sh npm run lint
+
+      - name: Formatting (oxfmt)
+        run: $RUNNER_TEMP/gc_run.sh npm run format:check
+
+      - name: Build
+        run: $RUNNER_TEMP/gc_run.sh npm run build
+
+      - name: Build the SSR bundle
+        run: $RUNNER_TEMP/gc_run.sh npm run build:ssr
 
       - name: SSR bundle was built
         run: test -f bootstrap/ssr/app.js
+
+      - name: Type-check (vue-tsc)
+        run: $RUNNER_TEMP/gc_run.sh npm run type-check
+
+      - name: Vitest
+        run: $RUNNER_TEMP/gc_run.sh npm run test
