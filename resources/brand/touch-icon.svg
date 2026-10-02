@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Opaque icon for iOS and Android home screens (they add their own rounding). -->
+  <rect width="64" height="64" fill="#ffffff"/>
+  <g transform="translate(7.68 7.68) scale(0.76)">
   <defs>
     <radialGradient id="gc-ball" cx="36%" cy="30%" r="75%">
       <stop offset="0" stop-color="#ffd162"/>
@@ -9,4 +12,5 @@
   <circle cx="32" cy="32" r="30" fill="url(#gc-ball)"/>
   <path d="M12.5 10.5c6.5 10 6.5 33 0 43M51.5 10.5c-6.5 10-6.5 33 0 43" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
   <path d="M32 19.5l3.7 7.6 8.3 1.2-6 5.9 1.4 8.3-7.4-3.9-7.4 3.9 1.4-8.3-6-5.9 8.3-1.2z" fill="#ffffff"/>
+  </g>
 </svg>

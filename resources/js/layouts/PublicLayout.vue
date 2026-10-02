@@ -24,7 +24,7 @@ const user = computed(() => page.props.auth.user ?? null);
                     :href="home()"
                     class="flex items-center gap-2 font-semibold"
                 >
-                    <AppLogoIcon class="size-6 fill-current" />
+                    <AppLogoIcon class="size-7" />
                     <span>{{ page.props.name }}</span>
                 </Link>
 

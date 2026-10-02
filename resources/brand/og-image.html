@@ -1,0 +1,101 @@
+<!doctype html>
+<!-- Open Graph card, 1200x630. Rendered once with headless Chrome; see README.md. -->
+<html>
+    <head>
+        <link
+            rel="stylesheet"
+            href="https://fonts.bunny.net/css?family=instrument-sans:500,600,700|instrument-serif:400"
+        />
+        <style>
+            html,
+            body {
+                margin: 0;
+                width: 1200px;
+                height: 630px;
+                background: #ffffff;
+                font-family: 'Instrument Sans', system-ui, sans-serif;
+                color: #1d1713;
+            }
+            .card {
+                box-sizing: border-box;
+                height: 100%;
+                padding: 0 96px;
+                display: flex;
+                align-items: center;
+                gap: 64px;
+                border-bottom: 14px solid #eaa000;
+            }
+            .mark svg {
+                width: 260px;
+                height: 260px;
+                display: block;
+            }
+            h1 {
+                margin: 0;
+                font-family: 'Instrument Serif', Georgia, serif;
+                font-weight: 400;
+                font-size: 116px;
+                line-height: 1;
+                letter-spacing: -1px;
+            }
+            p {
+                margin: 28px 0 0;
+                font-size: 38px;
+                font-weight: 500;
+                color: #69625d;
+                max-width: 620px;
+                line-height: 1.25;
+            }
+            .dims {
+                margin-top: 34px;
+                display: flex;
+                gap: 14px;
+            }
+            .dims span {
+                font-size: 24px;
+                font-weight: 600;
+                color: #7e4a09;
+                background: #fff3ce;
+                border-radius: 999px;
+                padding: 10px 22px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="mark">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                    <defs>
+                        <radialGradient id="gc-ball" cx="36%" cy="30%" r="75%">
+                            <stop offset="0" stop-color="#ffd162" />
+                            <stop offset="0.5" stop-color="#eaa000" />
+                            <stop offset="1" stop-color="#a86a00" />
+                        </radialGradient>
+                    </defs>
+                    <circle cx="32" cy="32" r="30" fill="url(#gc-ball)" />
+                    <path
+                        d="M12.5 10.5c6.5 10 6.5 33 0 43M51.5 10.5c-6.5 10-6.5 33 0 43"
+                        fill="none"
+                        stroke="#ffffff"
+                        stroke-width="4"
+                        stroke-linecap="round"
+                    />
+                    <path
+                        d="M32 19.5l3.7 7.6 8.3 1.2-6 5.9 1.4 8.3-7.4-3.9-7.4 3.9 1.4-8.3-6-5.9 8.3-1.2z"
+                        fill="#ffffff"
+                    />
+                </svg>
+            </div>
+            <div>
+                <h1>Golden Court</h1>
+                <p>
+                    Player reviews of every padel court, rated court by court.
+                </p>
+                <div class="dims">
+                    <span>Glass</span><span>Lighting</span><span>Turf</span
+                    ><span>Facilities</span>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
