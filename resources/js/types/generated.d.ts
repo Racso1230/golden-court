@@ -32,6 +32,9 @@ venueId: number,
 venueName: string,
 venueSlug: string,
 venueCity: string,
+venueAddress: App.Domain.Venues.Data.PostalAddressData,
+venueCoordinates: App.Domain.Venues.ValueObjects.Coordinates,
+venueWebsite: string | null,
 averages: App.Domain.Reviews.Data.DimensionAveragesData,
 };
 export type CourtSummaryData = {
@@ -212,6 +215,13 @@ export type Role = 'player' | 'venue_owner' | 'admin';
 }
 namespace Venues {
 namespace Data {
+export type PostalAddressData = {
+line1: string,
+line2: string | null,
+city: string,
+postcode: string,
+countryCode: string,
+};
 export type VenueDetailData = {
 id: number,
 name: string,

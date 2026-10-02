@@ -8,6 +8,7 @@ export type VenueDetail = App.Domain.Venues.Data.VenueDetailData;
 export type VenueSearchCriteria = App.Domain.Venues.Data.VenueSearchCriteria;
 export type VenueSort = App.Domain.Venues.Enums.VenueSort;
 export type Coordinates = App.Domain.Venues.ValueObjects.Coordinates;
+export type PostalAddress = App.Domain.Venues.Data.PostalAddressData;
 
 export type CourtSummary = App.Domain.Courts.Data.CourtSummaryData;
 export type CourtDetail = App.Domain.Courts.Data.CourtDetailData;

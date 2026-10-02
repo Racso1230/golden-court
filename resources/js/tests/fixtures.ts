@@ -100,6 +100,15 @@ export function courtDetail(overrides: Partial<CourtDetail> = {}): CourtDetail {
         venueName: 'Harbourside Padel',
         venueSlug: 'harbourside-padel',
         venueCity: 'Bristol',
+        venueAddress: {
+            line1: '1 Harbour Way',
+            line2: null,
+            city: 'Bristol',
+            postcode: 'BS1 4AA',
+            countryCode: 'GB',
+        },
+        venueCoordinates: { latitude: 51.45, longitude: -2.6 },
+        venueWebsite: 'https://harbourside.example',
         averages: { glass: 4.5, lighting: 4.2, turf: 4.8, facilities: 3.9 },
         ...overrides,
     };

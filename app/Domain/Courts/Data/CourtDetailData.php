@@ -6,13 +6,16 @@ namespace App\Domain\Courts\Data;
 
 use App\Domain\Courts\Models\Court;
 use App\Domain\Reviews\Data\DimensionAveragesData;
+use App\Domain\Venues\Data\PostalAddressData;
+use App\Domain\Venues\ValueObjects\Coordinates;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
- * A court page: the summary, its venue and per-dimension averages. The
- * paginated reviews travel as a separate prop so pagination keeps Laravel's
- * paginator shape.
+ * A court page: the summary, its venue (name, location and website, so the
+ * page and its structured data can place the court) and per-dimension
+ * averages. The paginated reviews travel as a separate prop so pagination
+ * keeps Laravel's paginator shape.
  */
 #[TypeScript]
 final class CourtDetailData extends Data
@@ -23,6 +26,9 @@ final class CourtDetailData extends Data
         public string $venueName,
         public string $venueSlug,
         public string $venueCity,
+        public PostalAddressData $venueAddress,
+        public Coordinates $venueCoordinates,
+        public ?string $venueWebsite,
         public DimensionAveragesData $averages,
     ) {}
 
@@ -31,12 +37,17 @@ final class CourtDetailData extends Data
      */
     public static function fromModel(Court $court, bool $isGoldenCourt, DimensionAveragesData $averages): self
     {
+        $venue = $court->venue;
+
         return new self(
             court: CourtSummaryData::fromModel($court, $isGoldenCourt),
-            venueId: $court->venue->id,
-            venueName: $court->venue->name,
-            venueSlug: $court->venue->slug,
-            venueCity: $court->venue->city,
+            venueId: $venue->id,
+            venueName: $venue->name,
+            venueSlug: $venue->slug,
+            venueCity: $venue->city,
+            venueAddress: PostalAddressData::fromModel($venue),
+            venueCoordinates: Coordinates::from($venue->latitude, $venue->longitude),
+            venueWebsite: $venue->website,
             averages: $averages,
         );
     }

@@ -87,3 +87,17 @@ it('rejects an invalid sort', function (): void {
         ->assertRedirect()
         ->assertSessionHasErrors('sort');
 });
+
+it('places the court at its venue', function (): void {
+    $court = Court::factory()->create();
+    $venue = $court->venue;
+
+    get(route('courts.show', [$venue, $court]))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('court.venueAddress.line1', $venue->address_line_1)
+            ->where('court.venueAddress.city', $venue->city)
+            ->where('court.venueAddress.postcode', $venue->postcode)
+            ->where('court.venueCoordinates.latitude', $venue->latitude)
+            ->where('court.venueCoordinates.longitude', $venue->longitude)
+            ->where('court.venueWebsite', $venue->website));
+});
