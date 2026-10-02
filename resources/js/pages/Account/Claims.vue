@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import { Building2 } from '@lucide/vue';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
 import {
     Table,
     TableBody,
@@ -11,50 +14,44 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/dates';
+import { claimStatusTone } from '@/lib/status';
 import { index as venuesIndex, show as venueShow } from '@/routes/venues';
-import type { ClaimStatus, VenueClaim } from '@/types';
+import type { VenueClaim } from '@/types';
 
 defineProps<{ claims: VenueClaim[] }>();
-
-function statusVariant(
-    status: ClaimStatus,
-): 'default' | 'secondary' | 'destructive' {
-    switch (status) {
-        case 'approved':
-            return 'default';
-        case 'pending':
-            return 'secondary';
-        case 'rejected':
-            return 'destructive';
-    }
-}
 </script>
 
 <template>
-    <div class="flex flex-col space-y-6 p-4">
-        <Heading
-            title="My venue claims"
-            description="Claims you have made to manage a venue"
-        />
+    <PageHeader
+        eyebrow="Your account"
+        title="My venue claims"
+        description="Venues you have asked to manage. Once approved you can reply to their reviews."
+    />
 
-        <p v-if="claims.length === 0" class="text-muted-foreground">
-            You have not claimed a venue. Open a venue from the
-            <Link :href="venuesIndex()" class="underline">venue list</Link>
-            and use "Claim this venue".
-        </p>
+    <EmptyState
+        v-if="claims.length === 0"
+        title="You have not claimed a venue"
+        description="Run a venue? Open it from the venue list and choose 'Claim this venue'."
+    >
+        <template #icon><Building2 /></template>
+        <Button variant="outline" as-child>
+            <Link :href="venuesIndex()">Browse venues</Link>
+        </Button>
+    </EmptyState>
 
-        <Table v-else>
-            <TableHeader>
+    <div v-else class="bg-card overflow-hidden rounded-xl border shadow-xs">
+        <Table>
+            <TableHeader class="bg-muted/50">
                 <TableRow>
-                    <TableHead>Venue</TableHead>
+                    <TableHead class="px-5">Venue</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submitted</TableHead>
-                    <TableHead>Decision</TableHead>
+                    <TableHead class="px-5">Decision</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 <TableRow v-for="claim in claims" :key="claim.id">
-                    <TableCell>
+                    <TableCell class="px-5 py-3">
                         <Link
                             :href="venueShow(claim.venueSlug)"
                             class="font-medium hover:underline"
@@ -63,14 +60,16 @@ function statusVariant(
                         </Link>
                     </TableCell>
                     <TableCell>
-                        <Badge :variant="statusVariant(claim.status)">
+                        <StatusBadge :tone="claimStatusTone(claim.status)">
                             {{ claim.statusLabel }}
-                        </Badge>
+                        </StatusBadge>
                     </TableCell>
-                    <TableCell class="whitespace-nowrap">
+                    <TableCell class="whitespace-nowrap tabular-nums">
                         {{ formatDate(claim.submittedAt) }}
                     </TableCell>
-                    <TableCell class="text-muted-foreground">
+                    <TableCell
+                        class="text-muted-foreground px-5 whitespace-normal"
+                    >
                         <template v-if="claim.reviewedAt">
                             {{ formatDate(claim.reviewedAt) }}
                             <template v-if="claim.rejectionReason">
