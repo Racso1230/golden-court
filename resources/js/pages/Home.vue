@@ -75,6 +75,7 @@ const steps = [
         <form
             class="relative mx-auto mt-8 max-w-xl"
             role="search"
+            aria-label="Find a venue"
             @submit.prevent="search"
         >
             <label for="home-search" class="sr-only">

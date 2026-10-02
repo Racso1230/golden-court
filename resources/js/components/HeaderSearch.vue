@@ -23,6 +23,7 @@ function search(): void {
 <template>
     <form
         role="search"
+        aria-label="Site search"
         class="relative w-full max-w-xs"
         @submit.prevent="search"
     >
