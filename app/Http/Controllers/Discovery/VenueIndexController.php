@@ -9,19 +9,25 @@ use App\Domain\Courts\Enums\Surface;
 use App\Domain\Courts\Enums\WallType;
 use App\Domain\Courts\Queries\GoldenCourtQuery;
 use App\Domain\Shared\Data\OptionData;
+use App\Domain\Venues\Actions\BuildVenueIndexPageMeta;
 use App\Domain\Venues\Data\VenueSummaryData;
 use App\Domain\Venues\Enums\VenueSort;
 use App\Domain\Venues\Models\Venue;
 use App\Domain\Venues\Queries\VenueSearchQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Discovery\VenueSearchRequest;
+use App\Support\Seo\HeadTagRenderer;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class VenueIndexController extends Controller
 {
-    public function __invoke(VenueSearchRequest $request, GoldenCourtQuery $goldenCourts): Response
-    {
+    public function __invoke(
+        VenueSearchRequest $request,
+        GoldenCourtQuery $goldenCourts,
+        BuildVenueIndexPageMeta $meta,
+        HeadTagRenderer $head,
+    ): Response {
         $criteria = $request->toCriteria();
         $venues = (new VenueSearchQuery($criteria))->paginate()->withQueryString();
 
@@ -43,6 +49,7 @@ class VenueIndexController extends Controller
                 'surfaces' => OptionData::fromEnum(Surface::class),
                 'sorts' => OptionData::fromEnum(VenueSort::class),
             ],
+            'head' => $head->render($meta->handle($criteria, $venues->total(), $venues->lastPage())),
         ]);
     }
 }

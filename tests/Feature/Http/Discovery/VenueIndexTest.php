@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Courts\Enums\CourtType;
 use App\Domain\Courts\Models\Court;
 use App\Domain\Venues\Models\Venue;
+use Illuminate\Support\Collection;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\get;
@@ -64,4 +65,22 @@ it('rejects invalid search parameters', function (): void {
 
 it('is public', function (): void {
     get(route('venues.index'))->assertOk();
+});
+
+it('gives city listings a canonical that keeps the city and the page', function (): void {
+    Venue::factory()->count(21)->create(['city' => 'Leeds']);
+    $base = rtrim((string) config('app.url'), '/');
+
+    get(route('venues.index', ['city' => 'Leeds', 'page' => 2]))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('head', fn (Collection $head): bool => headTag($head->all(), 'title') === sprintf('<title data-inertia="title">Padel courts in Leeds | %s</title>', config('app.name'))
+                && headTag($head->all(), 'canonical') === sprintf('<link rel="canonical" href="%s/venues?city=Leeds&amp;page=2" data-inertia="canonical">', $base)
+                && headTag($head->all(), 'robots') === '<meta name="robots" content="index, follow" data-inertia="robots">'));
+});
+
+it('keeps filtered searches out of the index', function (): void {
+    get(route('venues.index', ['term' => 'padel', 'sort' => 'name']))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('head', fn (Collection $head): bool => headTag($head->all(), 'robots') === '<meta name="robots" content="noindex, follow" data-inertia="robots">'
+                && headTag($head->all(), 'canonical') === null));
 });

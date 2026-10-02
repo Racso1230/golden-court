@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Courts\Models\Court;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Venues\Models\Venue;
+use Illuminate\Support\Collection;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\get;
@@ -41,4 +42,14 @@ it('renders with no data at all', function (): void {
             ->component('Home')
             ->has('topVenues', 0)
             ->has('recentReviews', 0));
+});
+
+it('describes itself for search engines', function (): void {
+    $base = rtrim((string) config('app.url'), '/');
+
+    get(route('home'))
+        ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+            ->where('head', fn (Collection $head): bool => headTag($head->all(), 'title') === sprintf('<title data-inertia="title">%s: padel court reviews and ratings</title>', config('app.name'))
+                && headTag($head->all(), 'canonical') === sprintf('<link rel="canonical" href="%s/" data-inertia="canonical">', $base)
+                && (jsonLd($head->all(), 'website')['@type'] ?? null) === 'WebSite'));
 });

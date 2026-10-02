@@ -8,17 +8,24 @@ use App\Domain\Courts\Queries\GoldenCourtQuery;
 use App\Domain\Reviews\Data\RecentReviewData;
 use App\Domain\Reviews\Models\Review;
 use App\Domain\Reviews\Queries\RecentReviewsQuery;
+use App\Domain\Venues\Actions\BuildHomePageMeta;
 use App\Domain\Venues\Data\VenueSummaryData;
 use App\Domain\Venues\Models\Venue;
 use App\Domain\Venues\Queries\TopVenuesQuery;
 use App\Http\Controllers\Controller;
+use App\Support\Seo\HeadTagRenderer;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public function __invoke(TopVenuesQuery $topVenues, RecentReviewsQuery $recentReviews, GoldenCourtQuery $goldenCourts): Response
-    {
+    public function __invoke(
+        TopVenuesQuery $topVenues,
+        RecentReviewsQuery $recentReviews,
+        GoldenCourtQuery $goldenCourts,
+        BuildHomePageMeta $meta,
+        HeadTagRenderer $head,
+    ): Response {
         $venues = $topVenues->get();
         $golden = $goldenCourts->forCities($venues->map(fn (Venue $venue): string => $venue->city)->all());
 
@@ -31,6 +38,7 @@ class HomeController extends Controller
                 ->map(fn (Review $review): RecentReviewData => RecentReviewData::fromModel($review))
                 ->values()
                 ->all(),
+            'head' => $head->render($meta->handle()),
         ]);
     }
 }
