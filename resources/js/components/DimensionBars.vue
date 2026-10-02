@@ -34,7 +34,7 @@ function describe(value: number | null): string {
                 </span>
             </div>
             <div
-                class="bg-muted h-2 overflow-hidden rounded-full"
+                class="bg-secondary h-2 overflow-hidden rounded-full"
                 role="meter"
                 :aria-labelledby="`dimension-${dimension.key}`"
                 aria-valuemin="0"
@@ -43,7 +43,7 @@ function describe(value: number | null): string {
                 :aria-valuetext="describe(averages[dimension.key])"
             >
                 <div
-                    class="h-full rounded-full bg-amber-500 transition-[width]"
+                    class="bg-gold-500 h-full rounded-full transition-[width]"
                     :style="{
                         width: `${((averages[dimension.key] ?? 0) / 5) * 100}%`,
                     }"

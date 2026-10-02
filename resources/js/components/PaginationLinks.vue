@@ -16,7 +16,10 @@ defineProps<{ links: PaginationLink[] }>();
                 v-if="link.url"
                 :href="link.url"
                 class="hover:bg-accent rounded-md border px-3 py-1.5"
-                :class="{ 'bg-accent font-semibold': link.active }"
+                :class="{
+                    'border-gold-500 bg-gold-50 text-gold-900 font-semibold':
+                        link.active,
+                }"
                 :aria-current="link.active ? 'page' : undefined"
                 v-html="link.label"
             />

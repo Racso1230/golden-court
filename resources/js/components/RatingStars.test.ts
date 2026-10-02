@@ -8,7 +8,7 @@ describe('RatingStars', () => {
 
         expect(wrapper.attributes('aria-label')).toBe('3.5 out of 5');
         expect(wrapper.text()).toContain('3.5');
-        expect(wrapper.find('.text-amber-500').attributes('style')).toContain(
+        expect(wrapper.find('.text-gold-500').attributes('style')).toContain(
             'width: 70%',
         );
     });

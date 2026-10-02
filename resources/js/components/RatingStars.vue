@@ -36,9 +36,9 @@ const sizeClass = computed(
             :class="sizeClass"
             aria-hidden="true"
         >
-            <span class="text-muted-foreground/40">★★★★★</span>
+            <span class="text-muted-foreground/30">★★★★★</span>
             <span
-                class="absolute inset-y-0 left-0 overflow-hidden whitespace-nowrap text-amber-500"
+                class="text-gold-500 absolute inset-y-0 left-0 overflow-hidden whitespace-nowrap"
                 :style="{ width: `${fillPercent}%` }"
                 >★★★★★</span
             >

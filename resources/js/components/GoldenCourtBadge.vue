@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Trophy } from '@lucide/vue';
 import { Badge } from '@/components/ui/badge';
 
 defineProps<{ city?: string }>();
@@ -7,12 +8,12 @@ defineProps<{ city?: string }>();
 <template>
     <Badge
         variant="outline"
-        class="border-amber-400 bg-amber-50 text-amber-800"
+        class="border-gold-300 bg-gold-50 text-gold-800"
         :title="
             city ? `Top-rated court in ${city}` : 'Top-rated court in its city'
         "
     >
-        <span aria-hidden="true">🏆</span>
+        <Trophy aria-hidden="true" />
         Golden Court<template v-if="city"> of {{ city }}</template>
     </Badge>
 </template>

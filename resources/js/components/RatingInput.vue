@@ -112,8 +112,8 @@ function tabIndexFor(value: Rating): number {
                 class="focus-visible:ring-ring/50 flex size-10 items-center justify-center rounded-md border text-lg transition-colors outline-none focus-visible:ring-[3px] disabled:opacity-50"
                 :class="
                     model !== null && value <= model
-                        ? 'border-amber-500 bg-amber-100 text-amber-700'
-                        : 'text-muted-foreground hover:bg-accent'
+                        ? 'border-gold-500 bg-gold-100 text-gold-800'
+                        : 'text-muted-foreground hover:bg-gold-50 hover:text-gold-700'
                 "
                 @click="select(value)"
                 @keydown="onKeydown($event, index)"

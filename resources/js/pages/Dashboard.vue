@@ -145,7 +145,7 @@ function markAllRead(): void {
     <div class="mx-auto w-full max-w-5xl space-y-10 px-4 py-8">
         <header>
             <p
-                class="text-xs font-semibold tracking-[0.14em] text-amber-700 uppercase"
+                class="text-gold-700 text-xs font-semibold tracking-[0.14em] uppercase"
             >
                 Your account
             </p>
@@ -166,14 +166,14 @@ function markAllRead(): void {
                 <li v-for="stat in stats" :key="stat.label">
                     <Link
                         :href="stat.href"
-                        class="bg-card flex h-full flex-col rounded-xl border p-5 shadow-xs transition hover:border-amber-300 hover:shadow-sm"
+                        class="bg-card hover:border-gold-300 flex h-full flex-col rounded-xl border p-5 shadow-xs transition hover:shadow-sm"
                     >
                         <span
                             class="text-muted-foreground flex items-center gap-2 text-sm"
                         >
                             <component
                                 :is="stat.icon"
-                                class="size-4 text-amber-600"
+                                class="text-gold-600 size-4"
                                 aria-hidden="true"
                             />
                             {{ stat.label }}
@@ -214,7 +214,7 @@ function markAllRead(): void {
                     class="rounded-xl border border-dashed px-6 py-12 text-center"
                 >
                     <span
-                        class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-amber-50 text-amber-700"
+                        class="bg-gold-50 text-gold-700 mx-auto mb-4 flex size-12 items-center justify-center rounded-full"
                     >
                         <Bell class="size-5" aria-hidden="true" />
                     </span>
@@ -238,7 +238,7 @@ function markAllRead(): void {
                             class="mt-1.5 size-2 shrink-0 rounded-full"
                             :class="
                                 item.readAt === null
-                                    ? 'bg-amber-500'
+                                    ? 'bg-gold-500'
                                     : 'bg-transparent'
                             "
                             aria-hidden="true"
@@ -288,10 +288,10 @@ function markAllRead(): void {
                     <li v-for="action in actions" :key="action.title">
                         <Link
                             :href="action.href"
-                            class="bg-card flex items-center gap-4 rounded-xl border p-4 shadow-xs transition hover:border-amber-300 hover:shadow-sm"
+                            class="bg-card hover:border-gold-300 flex items-center gap-4 rounded-xl border p-4 shadow-xs transition hover:shadow-sm"
                         >
                             <span
-                                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-700"
+                                class="bg-gold-50 text-gold-700 flex size-10 shrink-0 items-center justify-center rounded-full"
                             >
                                 <component
                                     :is="action.icon"
