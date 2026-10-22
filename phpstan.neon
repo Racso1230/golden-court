@@ -10,3 +10,9 @@ parameters:
         - tests/
 
     level: 8
+
+    # Analyse against every PHP version the project supports (composer.json: ^8.4),
+    # so code that only works on one of them is reported.
+    phpVersion:
+        min: 80400
+        max: 80500

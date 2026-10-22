@@ -3,6 +3,8 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         failOnDeprecation="true"
 >
     <testsuites>
         <testsuite name="Unit">
@@ -12,7 +14,9 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
-    <source>
+    <!-- Deprecations count against the suite only when our own code triggers them;
+         ones raised inside vendor packages are reported but do not fail the run. -->
+    <source ignoreIndirectDeprecations="true">
         <include>
             <directory>app</directory>
         </include>
