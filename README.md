@@ -39,14 +39,14 @@ carries the Golden Court badge.
 
 ## Stack
 
-PHP 8.4 · Laravel 13 · PostgreSQL 17 · Inertia 3 (SSR) · Vue 3 · TypeScript ·
+PHP 8.4 and 8.5 · Laravel 13 · PostgreSQL 17 · Inertia 3 (SSR) · Vue 3 · TypeScript ·
 Tailwind CSS 4 · shadcn-vue · spatie/laravel-data ·
 spatie/laravel-typescript-transformer · Pest · Larastan · Pint · Vitest ·
 vite-plus (oxlint, oxfmt)
 
 ## Requirements
 
-- PHP 8.4 with `pgsql` and `pdo_pgsql`
+- PHP 8.4 or 8.5 with `pgsql` and `pdo_pgsql` (CI tests both)
 - Composer 2, Node 22 and npm
 - PostgreSQL 17 (the `cube` and `earthdistance` contrib extensions ship with
   every build; the migrations enable them)
@@ -137,7 +137,7 @@ absolute URLs come from `APP_URL`, which should be `http://golden-court.test`
 locally.
 
 The frontend commands shell out to `php artisan` (Wayfinder routes and the
-TypeScript transformer), so PHP 8.4 must be on your `PATH`.
+TypeScript transformer), so PHP 8.4 or 8.5 must be on your `PATH`.
 
 ## Documentation
 

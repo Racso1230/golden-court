@@ -6,7 +6,7 @@ This file is the standing brief for Claude Code. Read `docs/plan/00-overview.md`
 
 ## Stack
 
-- PHP 8.4, Laravel 13, PostgreSQL 17 (PostGIS available)
+- PHP 8.4 and 8.5 (composer.json `^8.4`; CI runs both), Laravel 13, PostgreSQL 17 (PostGIS available)
 - Inertia 3 (with SSR) + Vue 3 + TypeScript (Laravel Vue starter kit), Tailwind, shadcn-vue
 - Pest for tests, Larastan (PHPStan) level 8, Pint, vite-plus (oxlint, oxfmt, Vitest), vue-tsc
 - spatie/laravel-data for DTOs, spatie/typescript-transformer for generated TS types
