@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
+import { Form, usePage } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -24,6 +24,8 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const page = usePage();
 </script>
 
 <template>
@@ -96,7 +98,10 @@ defineProps<{
             </Button>
         </div>
 
-        <div class="text-muted-foreground text-center text-sm">
+        <div
+            v-if="page.props.canRegister"
+            class="text-muted-foreground text-center text-sm"
+        >
             Don't have an account?
             <TextLink :href="register()">Sign up</TextLink>
         </div>

@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppFooter from '@/components/AppFooter.vue';
 import AppHeader from '@/components/AppHeader.vue';
+import ConceptBanner from '@/components/ConceptBanner.vue';
 import SectionTabs from '@/components/SectionTabs.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { accountTabs, adminTabs, sectionFor } from '@/lib/navigation';
@@ -24,6 +25,7 @@ const section = computed(() => sectionFor(page.component));
             class="focus:bg-background sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:px-3 focus:py-2"
             >Skip to content</a
         >
+        <ConceptBanner v-if="page.props.conceptBanner" />
         <AppHeader />
         <SectionTabs
             v-if="section === 'account'"

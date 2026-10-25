@@ -52,7 +52,7 @@ const year = new Date().getUTCFullYear();
                                 >Log in</Link
                             >
                         </li>
-                        <li>
+                        <li v-if="page.props.canRegister">
                             <Link
                                 :href="register()"
                                 class="text-muted-foreground hover:text-foreground"

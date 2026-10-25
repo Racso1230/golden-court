@@ -17,6 +17,10 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            /** False when sign-up is switched off (GOLDEN_COURT_REGISTRATION=false). */
+            canRegister: boolean;
+            /** True on the public concept deployment (GOLDEN_COURT_CONCEPT_BANNER=true). */
+            conceptBanner: boolean;
             auth: Auth;
             /** Null for guests. */
             notifications: App.Domain.Users.Data.NotificationsSummaryData | null;

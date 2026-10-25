@@ -100,11 +100,17 @@ function logOut(): void {
                     <LogOut class="size-4" aria-hidden="true" />
                     Log out
                 </Link>
-                <div v-else class="grid grid-cols-2 gap-2">
+                <div
+                    v-else
+                    class="grid gap-2"
+                    :class="
+                        page.props.canRegister ? 'grid-cols-2' : 'grid-cols-1'
+                    "
+                >
                     <Button variant="outline" as-child>
                         <Link :href="login()" @click="close">Log in</Link>
                     </Button>
-                    <Button as-child>
+                    <Button v-if="page.props.canRegister" as-child>
                         <Link :href="register()" @click="close">Register</Link>
                     </Button>
                 </div>

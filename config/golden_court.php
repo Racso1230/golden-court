@@ -69,4 +69,20 @@ return [
         'resolved_flags_days' => (int) env('GOLDEN_COURT_RETAIN_RESOLVED_FLAGS_DAYS', 180),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Concept banner
+    |--------------------------------------------------------------------------
+    |
+    | Golden Court's venues and reviews are fictional. The public portfolio
+    | deployment switches this on so every page says so; it is off for local
+    | development. (Sign-up is switched off separately, in config/fortify.php,
+    | with GOLDEN_COURT_REGISTRATION=false.)
+    |
+    */
+
+    'site' => [
+        'concept_banner' => filter_var(env('GOLDEN_COURT_CONCEPT_BANNER', false), FILTER_VALIDATE_BOOL),
+    ],
+
 ];

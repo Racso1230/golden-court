@@ -12,6 +12,7 @@ use App\Support\Seo\Site;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Inertia\Middleware;
+use Laravel\Fortify\Features;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -84,6 +85,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // False when sign-up is switched off, so the pages stop linking to it.
+            'canRegister' => Features::enabled(Features::registration()),
+            // True on the public portfolio deployment, where every page says it is a concept.
+            'conceptBanner' => (bool) config('golden_court.site.concept_banner'),
             'auth' => [
                 'user' => $user,
             ],

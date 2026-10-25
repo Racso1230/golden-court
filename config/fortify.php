@@ -163,7 +163,11 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Sign-up can be switched off with GOLDEN_COURT_REGISTRATION=false, for
+        // a public deployment that only shows the seeded venues. The flag is
+        // read here directly because config files load alphabetically, so
+        // golden_court.php is not available yet.
+        ...(filter_var(env('GOLDEN_COURT_REGISTRATION', true), FILTER_VALIDATE_BOOL) ? [Features::registration()] : []),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

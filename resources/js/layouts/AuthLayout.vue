@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import AppLogo from '@/components/AppLogo.vue';
+import ConceptBanner from '@/components/ConceptBanner.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { home } from '@/routes';
 
@@ -14,10 +15,13 @@ const { title = '', description = '' } = defineProps<{
     title?: string;
     description?: string;
 }>();
+
+const page = usePage();
 </script>
 
 <template>
     <div class="bg-muted/40 flex min-h-svh flex-col">
+        <ConceptBanner v-if="page.props.conceptBanner" />
         <header
             class="mx-auto flex w-full max-w-6xl items-center px-4 py-5 sm:px-6 lg:px-8"
         >

@@ -90,7 +90,7 @@ const links = computed(() => [
                     >
                         <Link :href="login()">Log in</Link>
                     </Button>
-                    <Button as-child>
+                    <Button v-if="page.props.canRegister" as-child>
                         <Link :href="register()">Register</Link>
                     </Button>
                 </template>
